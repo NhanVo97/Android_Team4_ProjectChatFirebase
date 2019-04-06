@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#2f80ed"
+        android:minHeight="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:theme="@style/ToolBarStyle">
+        <AutoCompleteTextView
+            android:drawableLeft="@drawable/search"
+            android:drawablePadding="5dp"
+            android:textColor="#888"
+            android:hint="Gõ vào tên bạn muốn tìm..."
+            android:background="#FFF"
+            android:paddingLeft="10dp"
+            android:textColorHint="#888"
+            android:completionThreshold="1"
+            android:id="@+id/autocomplete"
+            android:layout_width="350dp"
+            android:layout_height="40dp" />
+    </android.support.v7.widget.Toolbar>
+
+    <ListView
+        android:id="@+id/listhistory"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/browser_actions_bg_grey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.381"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvLichSu" />
+
+    <android.support.constraint.ConstraintLayout
+        android:background="@color/browser_actions_bg_grey"
+        android:id="@+id/constraintLayout15"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <TextView
+            android:id="@+id/textView31"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:text="Tìm kiếm gần đây"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnHistoryS"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="@color/fui_transparent"
+            android:text="Nhật Ký"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:background="@color/browser_actions_bg_grey"
+        android:id="@+id/tvLichSu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gần đây bạn chưa tìm kiếm ai"
+        android:textColor="#333"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout15" />
+
+</android.support.constraint.ConstraintLayout>

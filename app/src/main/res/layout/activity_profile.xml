@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/layout_profile">
+
+    <android.support.v7.widget.RecyclerView
+        android:background="#FFF"
+        android:id="@+id/recycleviewButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+
+    <FrameLayout
+
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/backgroundAvatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/browser_actions_bg_grey" />
+        <ImageView
+            android:id="@+id/ibAvatar"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:src="@drawable/noavt"
+            android:layout_gravity="bottom"/>
+        <TextView
+            android:id="@+id/tvNameUser"
+            android:textSize="15sp"
+            android:textAllCaps="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nhân"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="120dp"
+            android:layout_marginBottom="15sp"/>
+
+    </FrameLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cstranlayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="#FFF"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycleviewButton">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imAvatarPrv"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:src="@drawable/noavt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView33" />
+
+        <EditText
+            android:id="@+id/edTTPRV"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="32dp"
+            android:layout_weight="1"
+            android:autofillHints="@string/whatareyouthink"
+            android:background="#FFF"
+            android:ems="10"
+            android:focusable="false"
+            android:hint="@string/whatareyouthink"
+            android:inputType="textPersonName"
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.2"
+            app:layout_constraintStart_toEndOf="@+id/imAvatarPrv"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView33"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Bài Viết"
+            android:textColor="#333"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rclistpostcanhan"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cstranlayout" />
+
+</android.support.constraint.ConstraintLayout>

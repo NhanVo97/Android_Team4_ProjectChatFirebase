@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "247622574109",
+    "firebase_url": "https://chat365-58b2b.firebaseio.com",
+    "project_id": "chat365-58b2b",
+    "storage_bucket": "chat365-58b2b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:247622574109:android:b2b16e881396c110",
+        "android_client_info": {
+          "package_name": "com.example.Chat365"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOWHMS_Z-evX6hm3riePKJyE-aCjpzoJY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "247622574109-6thn9bo4otes7d2npshrm9h0du7vkrmj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">Chat</string>
+    <string name="Email">Email</string>
+    <string name="EmailHint"><font size="16">Nhập email của bạn</font></string>
+    <string name="Password">Mật Khẩu</string>
+    <string name="Passwordhint"><font size="16">Mật khẩu tối thiểu 6 kí tự</font></string>
+    <string name="Login">Đăng Nhập</string>
+    <string name="Forget">Quên Mật Khẩu</string>
+    <string name="hintRegister">Bạn chưa có tài khoản? </string>
+    <string name="Register">Đăng Ký</string>
+    <string name="name">Tên</string>
+    <string name="callyou"><font size="16">Tôi có thể gọi bạn là gì?</font> </string>
+    <string name="sex">Giới Tính</string>
+    <string name="Nam">Nam</string>
+    <string name="Nu">Nữ</string>
+    <string name="Birthday">Ngày Sinh</string>
+    <string name="hintBirthday">Nhập ngày Sinh</string>
+    <string name="CapForget">Bạn quên mật khẩu?</string>
+    <string name="textHint">Vui lòng nhập email vào ô bên dưới để tạo mới mật khẩu</string>
+    <string name="send">Gửi</string>
+    <string name="LoginGoogle">Đăng Nhập Với Google</string>
+    <string name="LoginFacebook">Đăng Nhập Với Facebook</string>
+    <string name="Avatar">Ảnh đại diện</string>
+    <string name="AvatarCap">Chọn một ảnh chụp bạn dạo gần đây. Như vậy sẽ thấy rằng họ đang liên lạc với đúng người.</string>
+    <string name="BGAvatar">Ảnh bìa</string>
+    <string name="BGAvatarCap">Chọn ảnh để hiện thị đầu trang cá nhân của bạn. Đó có thể là ảnh trong chuyến đi mới đây hoặc điều gì đó bạn tự hào</string>
+    <string name="History">Tiểu sử</string>
+    <string name="HistoryCap">Viết tiểu sử của bạn</string>
+    <string name="Addhistory">Thêm tiểu sử</string>
+    <string name="Detail">Chi tiết</string>
+    <string name="DetailInfo">Thêm các chi tiết của bạn để mọi người biết thêm về bạn</string>
+    <string name="Province"><font size="12">Tỉnh/Thành phố hiện tại</font></string>
+    <string name="Work"><font size="12">Nơi làm việc</font></string>
+    <string name="Study"><font size="12">Học vấn</font></string>
+    <string name="Hometown"><font size="12">Quê quán</font></string>
+    <string name="Relationship"><font size="12">Tình trạng mối quan hệ</font></string>
+    <string name="Add">Thêm</string>
+    <string name="Title">Chat 365</string>
+    <string name="Sologan">Nhắn gửi lời yêu thương</string>
+    <string name="facebook_app_id">376301016429769</string>
+    <string name="fb_login_protocol_scheme">fb376301016429769</string>
+    <string name="FriendRequest">Lời mời kết bạn</string>
+    <string name="requeststt">Muốn được kết bạn !</string>
+    <string name="myBestFriends">Bạn thân</string>
+    <string name="myStatus">Cập nhật trạng thái</string>
+    <string name="ChangeStatus">Thay đổi trạng thái</string>
+    <string name="whatareyouthink">Bạn đang nghĩ gì?</string>
+    <string name="namealbums">Tên album</string>
+    <string name="adddescribe">Thêm mô tả</string>
+    <string name="addfriendsupload">Thêm bạn bè đóng góp</string>
+    <string name="captionaddfriendsupload">Thêm bạn bè làm người đóng góp để họ tự thêm ảnh, bài viết văn bản và nhiều nội dung khác của chính mình</string>
+    <string name="Whohaveaccesstosee">Ai có quyền xem bài viết của bạn?</string>
+    <string name="CapWhoSee">Bài viết của bạn sẽ hiễn thị trong bản tin , trên trang cá nhân và trong kết quả tìm kiếm</string>
+</resources>

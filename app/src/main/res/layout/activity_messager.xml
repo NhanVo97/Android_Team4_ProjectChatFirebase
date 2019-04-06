@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   >
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#2f80ed"
+        app:titleTextColor="#fff"
+        android:minHeight="?attr/actionBarSize"
+        app:theme="@style/ToolBarStyle">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:src="@drawable/noavt"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:id="@+id/profile_image"/>
+
+            <TextView
+                android:text="Nhân"
+                android:layout_toRightOf="@id/profile_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:id="@+id/username"
+                android:textSize="18sp"
+                android:textColor="#fff"
+                android:textStyle="normal" />
+            <TextView
+                android:layout_below="@id/username"
+                android:layout_toRightOf="@id/profile_image"
+                android:text="Đang hoạt động"
+                android:layout_marginLeft="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/sttuser"
+                android:textSize="10sp"
+                android:textColor="#fff"
+                android:textStyle="normal"
+                />
+        </RelativeLayout>
+
+    </android.support.v7.widget.Toolbar>
+
+    <!-- A horizontal line between the chatbox and RecyclerView -->
+    <View
+        android:id="@+id/view2"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="#dfdfdf"
+        app:layout_constraintBottom_toTopOf="@+id/layout_chatbox"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/layout_chatbox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:background="#ffffff"
+        android:minHeight="48dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linerHinh"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <ImageButton
+            android:background="@color/fui_transparent"
+            android:id="@+id/imCameraMS"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/camera_notactive" />
+
+        <ImageButton
+            android:background="@color/fui_transparent"
+            android:id="@+id/imPictureShow"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/hinh_notactive" />
+
+        <EditText
+            android:id="@+id/edittext_chatbox"
+            android:layout_width="212dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:hint="Nhập tin nhắn..."
+            android:maxLines="6" />
+
+        <Button
+            android:id="@+id/button_chatbox_send"
+            android:layout_width="64dp"
+            android:layout_height="48dp"
+            android:layout_gravity="bottom"
+            android:background="@color/com_facebook_button_send_background_color"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="Gửi"
+            android:textColor="#fff"
+            android:textSize="14dp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linerHinh"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rcHinh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/view2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        android:id="@+id/layoutmessager"
+        >
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/reyclerview_message_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

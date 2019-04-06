@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.Chat365.Activity.Post">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tbQuyen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#2f80ed"
+        android:minHeight="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:theme="@style/ToolBarStyle"
+        app:titleTextColor="#fff" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imavtpost"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/noavt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tbQuyen" />
+
+    <TextView
+        android:textSize="18dp"
+        android:id="@+id/tvNamePost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="8dp"
+        android:text="Đức Nhân"
+        android:textColor="#333"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/imavtpost"
+        app:layout_constraintTop_toBottomOf="@+id/tbQuyen" />
+
+    <Spinner
+        android:id="@+id/spAccess"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/imavtpost"
+        app:layout_constraintTop_toBottomOf="@+id/tvNamePost" />
+
+    <Spinner
+        android:id="@+id/spAlbum"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/spAccess"
+        app:layout_constraintTop_toBottomOf="@+id/tvNamePost" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout10"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/textView27"
+            android:layout_width="244dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:text="Thêm vào bài viết của bạn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/btnGalery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/imageView10"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/picturepost" />
+
+        <ImageView
+            android:id="@+id/imageView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/friendspost"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+    <EditText
+        android:gravity="start"
+        android:id="@+id/edPostSTT"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:ems="10"
+        android:hint="@string/whatareyouthink"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout10"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spAlbum"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:textColor="#fff"
+        android:id="@+id/btnShare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Chia sẻ"
+        app:layout_constraintEnd_toEndOf="@+id/tbQuyen"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <GridView
+        android:id="@+id/imPosthinh"
+        android:layout_width="0dp"
+        android:layout_height="344dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:numColumns="3"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout10"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/edPostSTT"
+        app:layout_constraintVertical_bias="0.782" />
+
+</android.support.constraint.ConstraintLayout>

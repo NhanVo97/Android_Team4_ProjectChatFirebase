@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff"
+    android:padding="10dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView
+        android:id="@+id/ImageAvt"
+        android:src="@drawable/activity"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+    <TextView
+        android:drawableRight="@drawable/rightarrow"
+        android:id="@+id/textNickName"
+        android:textSize="16dp"
+        android:layout_marginLeft="20dp"
+        android:text="Võ Đức Nhân"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
