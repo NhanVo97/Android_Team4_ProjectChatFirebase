@@ -98,10 +98,8 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
         // google
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN) .requestIdToken(getString(R.string.clientID))
+                .requestEmail() .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         btnGoogle.setOnClickListener(new View.OnClickListener() {
 
@@ -112,8 +110,8 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
         // Facebook
-//        FacebookSdk.sdkInitialize(getApplicationContext());
-//        AppEventsLogger.activateApp(this);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
         btnFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,6 +132,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onError(FacebookException error) {
                 Log.e("AAA",error.toString());
+                Toast.makeText(HomeActivity.this, "Đăng nhập thất bại!", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -195,9 +194,10 @@ public class HomeActivity extends AppCompatActivity {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             firebaseAuthWithGoogle(account);
-
         } catch (ApiException e) {
-            Toast.makeText(getApplicationContext(),"Đăng nhập không thành công!",Toast.LENGTH_SHORT).show();
+            Log.w("AAA", "Google sign in failed", e);
+            Toast.makeText(HomeActivity.this, "Đăng nhập thất bại!", Toast.LENGTH_SHORT).show();
+
         }
     }
 

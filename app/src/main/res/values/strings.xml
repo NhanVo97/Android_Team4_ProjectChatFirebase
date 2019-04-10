@@ -38,6 +38,7 @@
     <string name="Title">Chat 365</string>
     <string name="Sologan">Nhắn gửi lời yêu thương</string>
     <string name="facebook_app_id">376301016429769</string>
+    <string name="clientID">247622574109-6thn9bo4otes7d2npshrm9h0du7vkrmj.apps.googleusercontent.com</string>
     <string name="fb_login_protocol_scheme">fb376301016429769</string>
     <string name="FriendRequest">Lời mời kết bạn</string>
     <string name="requeststt">Muốn được kết bạn !</string>

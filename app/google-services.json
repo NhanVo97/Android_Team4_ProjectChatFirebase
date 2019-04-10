@@ -15,7 +15,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "247622574109-loj8igrnlivlkoh7813ptprk3klu8hi6.apps.googleusercontent.com",
+          "client_id": "247622574109-rcpt78joltj947bjj9u1np8d01p9bovm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.Chat365",
@@ -32,7 +32,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "247622574109-6thn9bo4otes7d2npshrm9h0du7vkrmj.apps.googleusercontent.com",
+              "client_id": "247622574109-sr313vbi3b565ara24ncjks72tnt1m6o.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
