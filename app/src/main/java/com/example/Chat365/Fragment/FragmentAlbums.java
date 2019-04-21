@@ -123,7 +123,6 @@ public class FragmentAlbums extends Fragment{
         mData = FirebaseDatabase.getInstance().getReference();
         tv = v.findViewById(R.id.tvDem);
         listAlbumAdapter = new ListAlbumAdapter(listAlbum,getActivity());
-
         lv.setAdapter(listAlbumAdapter);
         GetData();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {

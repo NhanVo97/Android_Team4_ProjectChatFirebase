@@ -1,6 +1,8 @@
 package com.example.Chat365.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +17,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.Chat365.Activity.HomeActivity;
 import com.example.Chat365.Activity.Post;
 import com.example.Chat365.Adapter.PostAdapter;
 import com.example.Chat365.Model.PostStatus;
@@ -28,6 +32,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -40,32 +45,36 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
     ImageView imAvt;
     DatabaseReference mData;
     FirebaseAuth mCurrent;
-    User user;
     List<PostStatus> listPost;
     PostAdapter postAdapter;
     RecyclerView lv;
+    User user;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
     @Override
     public void onStart() {
         super.onStart();
-        getUser();
+        startUser();
         getData();
     }
-    public void getData()
-    {
+
+    private void startUser() {
+        Session session = new Session(mData,mCurrent.getCurrentUser(),getActivity(),false);
+        user = session.getUser();
+        if(user == null){
+            backToHome();
+        }
+        Picasso.get().load(user.getAvatar()).into(imAvt);
+    }
+
+    public void getData() {
         listPost.clear();
         mData.keepSynced(true);
         mData.child("Post").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 PostStatus postStatus = dataSnapshot.getValue(PostStatus.class);
-                if(postStatus.getAccess().equals("0") || postStatus.getId().equals(mCurrent.getCurrentUser().getUid()) )
-                {
+                if (postStatus.getAccess().equals("0") || postStatus.getId().equals(mCurrent.getCurrentUser().getUid())) {
                     listPost.add(postStatus);
-
                 }
                 Collections.reverse(listPost);
                 postAdapter.notifyDataSetChanged();
@@ -73,12 +82,21 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                PostStatus postStatus = dataSnapshot.getValue(PostStatus.class);
+                for(int i = 0;i<listPost.size();i++){
+                    if(listPost.get(i).getKey().equals(postStatus.getKey())){
+                        listPost.set(i,postStatus);
+                        break;
+                    }
+                }
+                postAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                PostStatus postStatus = dataSnapshot.getValue(PostStatus.class);
+                listPost.remove(postStatus);
+                postAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -92,42 +110,17 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
             }
         });
     }
-    public void getUser()
-    {
-        mData.child("Users").child(mCurrent.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists())
-                {
-                    User user = dataSnapshot.getValue(User.class);
-                    setUser(user);
-                }
-                if(!user.getAvatar().equals(""))
-                {
-                    Picasso.get().load(user.getAvatar()).into(imAvt);
-                }
-                editStt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getActivity(),Post.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("User",user);
-                        intent.putExtra("BundleUser",bundle);
-                        startActivity(intent);
-                    }
-                });
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+    private void backToHome() {
+        Intent intent = new Intent(getActivity(), HomeActivity.class);
+        startActivity(intent);
+        getActivity().finish();
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.fragment_active,container,false);
+        v = inflater.inflate(R.layout.fragment_active, container, false);
         // Anh Xa
         editStt = v.findViewById(R.id.edActt);
         imAvt = v.findViewById(R.id.imAvatarPrv);
@@ -135,7 +128,7 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
         mData = FirebaseDatabase.getInstance().getReference();
         listPost = new ArrayList<>();
         lv = v.findViewById(R.id.postlist);
-        postAdapter = new PostAdapter(this,listPost);
+        postAdapter = new PostAdapter(this, listPost);
         lv.setHasFixedSize(true);
         lv.setLayoutManager(new LinearLayoutManager(getContext()));
         lv.setAdapter(postAdapter);

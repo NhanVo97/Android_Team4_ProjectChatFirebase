@@ -1,9 +1,11 @@
 package com.example.Chat365.Utils.Management;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
+import com.example.Chat365.Activity.HomeActivity;
 import com.example.Chat365.Model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +39,18 @@ public class Session implements ValueEventListener {
         }
 
     }
+    public User getUser(){
+            initUser();
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences("User", Context.MODE_PRIVATE);
+            if (sharedPreferences != null) {
+                String json = sharedPreferences.getString("User","");
+                Gson gson = new Gson();
+                User user = gson.fromJson(json,User.class);
+                return user;
+            } else {
+                return null;
+            }
+    }
 
     private void saveUser(DataSnapshot dataSnapshot) {
         SharedPreferences sharedPreferences = mContext.getSharedPreferences("User", Context.MODE_PRIVATE);
@@ -63,8 +77,9 @@ public class Session implements ValueEventListener {
         editor.putString("User", json);
         editor.commit();
     }
-    private void detroyUser(User user){
+    public void detroyUser(User user){
         mData.child("User").child(user.getId()).child("isOnline").setValue("true");
+        mData.child("Users").child(user.getId()).child("timestamp").setValue(ServerValue.TIMESTAMP);
         SharedPreferences sharedPreferences = mContext.getSharedPreferences("User",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove("User").commit();

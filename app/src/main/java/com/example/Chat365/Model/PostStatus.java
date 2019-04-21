@@ -20,10 +20,10 @@ public class PostStatus {
         this.key = key;
         this.content = content;
         this.time = time;
-        this.access=access;
-        this.id=id;
-        this.linkAnh =linkAnh;
-        this.check=check;
+        this.access = access;
+        this.id = id;
+        this.linkAnh = linkAnh;
+        this.check = check;
     }
 
     public String getKey() {

@@ -23,35 +23,44 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentNotification extends Fragment implements ThongBaoAdapter.Oncallback{
+public class FragmentNotification extends Fragment implements ThongBaoAdapter.Oncallback {
     View v;
     DatabaseReference mData;
     FirebaseAuth mAuth;
     ThongBaoAdapter thongBaoAdapter;
     RecyclerView rcV;
     List<ThongBao> thongBaoList = new ArrayList<>();
-    public void getData()
-    {
+
+    public void getData() {
         mData.child("TB").child(mAuth.getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if(dataSnapshot.exists())
-                {
+                if (dataSnapshot.exists()) {
                     ThongBao thongBao = dataSnapshot.getValue(ThongBao.class);
                     thongBaoList.add(thongBao);
                 }
                 thongBaoAdapter.notifyDataSetChanged();
-
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                if (dataSnapshot.exists()) {
+                    ThongBao thongBao = dataSnapshot.getValue(ThongBao.class);
+                    for (int i = 0; i < thongBaoList.size(); i++) {
+                        if (thongBaoList.get(i).getID().equals(thongBao.getID())) {
+                            thongBaoList.set(i, thongBao);
+                            break;
+                        }
+                    }
+                    thongBaoAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                ThongBao thongBao = dataSnapshot.getValue(ThongBao.class);
+                thongBaoList.remove(thongBao);
+                thongBaoAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -65,14 +74,15 @@ public class FragmentNotification extends Fragment implements ThongBaoAdapter.On
             }
         });
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v=inflater.inflate(R.layout.fragment_notification,container,false);
+        v = inflater.inflate(R.layout.fragment_notification, container, false);
         mData = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         rcV = v.findViewById(R.id.rcvListTb);
-        thongBaoAdapter = new ThongBaoAdapter(this,thongBaoList);
+        thongBaoAdapter = new ThongBaoAdapter(this, thongBaoList);
         rcV.setHasFixedSize(true);
         rcV.setLayoutManager(new LinearLayoutManager(getActivity()));
         rcV.setAdapter(thongBaoAdapter);

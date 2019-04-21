@@ -16,9 +16,6 @@ import com.example.Chat365.Fragment.FragmentOther;
 import com.example.Chat365.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 
 public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
