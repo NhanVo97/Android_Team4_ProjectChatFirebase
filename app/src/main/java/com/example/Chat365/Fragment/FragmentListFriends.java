@@ -12,7 +12,7 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 
-import com.example.Chat365.Activity.ProfileActivity;
+import com.example.Chat365.Activity.User.ProfileActivity;
 import com.example.Chat365.Adapter.FriendAutoAdapter;
 import com.example.Chat365.Adapter.FriendsListAdapter;
 import com.example.Chat365.Model.Friends;

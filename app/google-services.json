@@ -1,38 +1,34 @@
 {
   "project_info": {
-    "project_number": "247622574109",
-    "firebase_url": "https://chat365-58b2b.firebaseio.com",
-    "project_id": "chat365-58b2b",
-    "storage_bucket": "chat365-58b2b.appspot.com"
+    "project_number": "891166652148",
+    "firebase_url": "https://app-33d0e.firebaseio.com",
+    "project_id": "app-33d0e",
+    "storage_bucket": "app-33d0e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:247622574109:android:b2b16e881396c110",
+        "mobilesdk_app_id": "1:891166652148:android:b2b16e881396c110",
         "android_client_info": {
           "package_name": "com.example.Chat365"
         }
       },
       "oauth_client": [
         {
-          "client_id": "247622574109-rcpt78joltj947bjj9u1np8d01p9bovm.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.Chat365",
-            "certificate_hash": "8b7017c7151554b2e76f5b1f06cc8b625b82640d"
-          }
+          "client_id": "891166652148-k8848c2pqbg9ujt34caildmgpvl7isaa.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBOWHMS_Z-evX6hm3riePKJyE-aCjpzoJY"
+          "current_key": "AIzaSyA7XaYI2L1y4I5RzuneIt94pWYYf7uHJLA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "247622574109-sr313vbi3b565ara24ncjks72tnt1m6o.apps.googleusercontent.com",
+              "client_id": "891166652148-k8848c2pqbg9ujt34caildmgpvl7isaa.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

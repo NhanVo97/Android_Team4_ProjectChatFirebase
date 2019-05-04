@@ -122,7 +122,7 @@ public class HinhAdapter extends RecyclerView.Adapter<HinhAdapter.ViewHolder> {
                 @Override
                 public void onClick(View v) {
                     Uri file = Uri.fromFile(new File(listhinh.get(position)));
-                    final StorageReference riversRef = storageRef.child("Post/"+user.getId()+"/"+file.getLastPathSegment());
+                    final StorageReference riversRef = storageRef.child("PostActivity/"+user.getId()+"/"+file.getLastPathSegment());
                     uploadTask = riversRef.putFile(file);
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override

@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.example.Chat365.Model.ThongBao;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
-import com.example.Chat365.Utils.GetTime;
+import com.example.Chat365.Utils.TimeUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -49,9 +49,8 @@ public class ThongBaoAdapter extends RecyclerView.Adapter<ThongBaoAdapter.ViewHo
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 holder.tvName.setText(user.getName());
-                if(!user.getAvatar().equals(""))
-                {
-                    Picasso.get().load(user.getAvatar()).into(holder.imHinh);
+                if(!user.getLinkAvatar().equals("")) {
+                    Picasso.get().load(user.getLinkAvatar()).into(holder.imHinh);
                 }
 
             }
@@ -62,7 +61,7 @@ public class ThongBaoAdapter extends RecyclerView.Adapter<ThongBaoAdapter.ViewHo
             }
         });
         long lastTime = thongBao.getTimestamp();
-        String lastSeenTime = GetTime.getTimeAgo(lastTime,mContext);
+        String lastSeenTime = TimeUtils.getTimeAgo(lastTime,mContext);
         holder.tvTimestamp.setText(lastSeenTime);
         holder.tvNDTB.setText(thongBao.getNDTB());
 

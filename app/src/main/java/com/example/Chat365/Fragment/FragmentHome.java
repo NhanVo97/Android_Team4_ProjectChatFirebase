@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.Chat365.Activity.HomeActivity;
-import com.example.Chat365.Activity.MessagerActivity;
+import com.example.Chat365.Activity.User.MessagerActivity;
 import com.example.Chat365.Adapter.ListMessagerAdapter;
 import com.example.Chat365.Model.Message;
 import com.example.Chat365.Model.User;
@@ -41,7 +41,7 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
     List<Message> list;
 
     public void getUser() {
-        Session session = new Session(mData, mAuth.getCurrentUser(), getActivity(), false);
+        Session session = new Session(mData,mAuth.getCurrentUser(),getActivity(), false);
         user = session.getUser();
         if (user == null) {
             backToHome();
@@ -106,27 +106,12 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
 
     private void LoadData() {
 
-        mData.child("PrivateChat").child(mAuth.getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
+        mData.child("PrivateChat").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     LoadDataKey(dataSnapshot.getKey());
                 }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
             }
 
             @Override

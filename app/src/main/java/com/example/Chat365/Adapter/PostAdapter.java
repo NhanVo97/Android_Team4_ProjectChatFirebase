@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.Chat365.Utils.GetTime.getTimeAgo;
+import static com.example.Chat365.Utils.TimeUtils.getTimeAgo;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> implements HinhAdapter.Oncallback{
     private List<PostStatus> listPost;
@@ -85,7 +85,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> im
                 User user = dataSnapshot.getValue(User.class);
                 holder.tvName.setText(user.getName());
                 if (!user.equals("")) {
-                    Picasso.get().load(user.getAvatar()).into(holder.imAvatar);
+                    Picasso.get().load(user.getLinkAvatar()).into(holder.imAvatar);
                 }
             }
 
@@ -145,8 +145,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> im
             @Override
             public void onClick(View v) {
                 CountShare++;
-                mData.child("Post").child(postStatus.getKey()).child("CountShare").setValue(CountShare);
-                mData.child("Post").child(postStatus.getKey()).child("listShare").push().setValue(mAuth.getCurrentUser().getUid());
+                mData.child("PostActivity").child(postStatus.getKey()).child("CountShare").setValue(CountShare);
+                mData.child("PostActivity").child(postStatus.getKey()).child("listShare").push().setValue(mAuth.getCurrentUser().getUid());
                 holder.tvShare.setText(CountShare+" chia sẻ");
                 holder.btnShare.setTextColor(Color.BLUE);
                 if(!postStatus.getId().equals(mAuth.getCurrentUser().getUid()))
@@ -231,8 +231,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> im
                                     holder.rvListComment.setAdapter(binhLuanAdapter);
                                     String key = mData.push().getKey();
                                     Comment comment = new Comment(key,postStatus.getKey(),mAuth.getCurrentUser().getUid(),ND,0);
-                                    mData.child("Post").child(postStatus.getKey()).child("listBinhLuan").child(key).setValue(comment);
-                                    mData.child("Post").child(postStatus.getKey()).child("listBinhLuan").child(key).child("time").setValue(ServerValue.TIMESTAMP);
+                                    mData.child("PostActivity").child(postStatus.getKey()).child("listBinhLuan").child(key).setValue(comment);
+                                    mData.child("PostActivity").child(postStatus.getKey()).child("listBinhLuan").child(key).child("time").setValue(ServerValue.TIMESTAMP);
                                     Toast.makeText(mContext,"Bình luận thành công",Toast.LENGTH_SHORT).show();
                                     commentList.add(comment);
                                     binhLuanAdapter.notifyDataSetChanged();
@@ -313,7 +313,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> im
 
         if(postStatus.isCheck())
         {
-           mData.child("Post").child(postStatus.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+           mData.child("PostActivity").child(postStatus.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                @Override
                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                    PostStatus postStatus1 = dataSnapshot.getValue(PostStatus.class);
@@ -324,12 +324,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> im
                    CountLike--;
                    if(CountLike==0)
                    {
-                       mData.child("Post").child(postStatus.getKey()).child("listLike").removeValue();
+                       mData.child("PostActivity").child(postStatus.getKey()).child("listLike").removeValue();
                        holder.tvLike.setText("");
                    }
                    else
                    {
-                       mData.child("Post").child(postStatus.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                       mData.child("PostActivity").child(postStatus.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                            @Override
                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                PostStatus postStatus1 = dataSnapshot.getValue(PostStatus.class);
@@ -338,7 +338,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> im
                                    String value = entry.getValue();
                                    if (value.equals(mAuth.getCurrentUser().getUid())) {
                                        keyRemove = entry.getKey();
-                                       mData.child("Post").child(postStatus.getKey()).child("listLike").child(keyRemove).removeValue();
+                                       mData.child("PostActivity").child(postStatus.getKey()).child("listLike").child(keyRemove).removeValue();
                                        break;
                                    }
 
@@ -371,7 +371,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> im
         }
         else
         {
-            mData.child("Post").child(postStatus.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+            mData.child("PostActivity").child(postStatus.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     PostStatus postStatus1 = dataSnapshot.getValue(PostStatus.class);
@@ -384,7 +384,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> im
                         CountLike=0;
                     }
                     CountLike++;
-                    mData.child("Post").child(postStatus.getKey()).child("listLike").push().setValue(mAuth.getCurrentUser().getUid());
+                    mData.child("PostActivity").child(postStatus.getKey()).child("listLike").push().setValue(mAuth.getCurrentUser().getUid());
                     EventTBLike(postStatus);
                     holder.tvLike.setText(CountLike+" lượt thích");
                     holder.btnLike.setTextColor(Color.BLUE);

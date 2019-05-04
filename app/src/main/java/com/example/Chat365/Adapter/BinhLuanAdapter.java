@@ -22,7 +22,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import static com.example.Chat365.Utils.GetTime.getTimeAgo;
+import static com.example.Chat365.Utils.TimeUtils.getTimeAgo;
 
 public class BinhLuanAdapter extends RecyclerView.Adapter<BinhLuanAdapter.ViewHolder> {
     private List<Comment> listComment;
@@ -56,9 +56,9 @@ public class BinhLuanAdapter extends RecyclerView.Adapter<BinhLuanAdapter.ViewHo
                    {
                        User user = dataSnapshot.getValue(User.class);
                        holder.tvName.setText(user.getName());
-                       if(!user.getAvatar().equals(""))
+                       if(!user.getLinkAvatar().equals(""))
                        {
-                           Picasso.get().load(user.getAvatar()).into(holder.imHinh);
+                           Picasso.get().load(user.getLinkAvatar()).into(holder.imHinh);
                        }
                        if(user.getIsOnline().equals("true"))
                        {

@@ -36,9 +36,9 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
     public void onBindViewHolder(@NonNull ChatRoomAdapter.ViewHolder holder, int position) {
         Message message = listMessage.get(position);
         User user = message.getUser();
-        if(!user.getAvatar().equals(""))
+        if(!user.getLinkAvatar().equals(""))
         {
-            Picasso.get().load(message.getUser().getAvatar()).into(holder.imHinh);
+            Picasso.get().load(message.getUser().getLinkAvatar()).into(holder.imHinh);
         }
         holder.tvName.setText(message.getUser().getName());
         holder.tvMessage.setText(message.getMessage());

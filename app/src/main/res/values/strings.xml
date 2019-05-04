@@ -37,9 +37,9 @@
     <string name="Add">Thêm</string>
     <string name="Title">Chat 365</string>
     <string name="Sologan">Nhắn gửi lời yêu thương</string>
-    <string name="facebook_app_id">376301016429769</string>
-    <string name="clientID">247622574109-6thn9bo4otes7d2npshrm9h0du7vkrmj.apps.googleusercontent.com</string>
-    <string name="fb_login_protocol_scheme">fb376301016429769</string>
+    <string name="facebook_app_id">409228306563157</string>
+    <string name="clientID">891166652148-k8848c2pqbg9ujt34caildmgpvl7isaa.apps.googleusercontent.com</string>
+    <string name="fb_login_protocol_scheme">fb409228306563157</string>
     <string name="FriendRequest">Lời mời kết bạn</string>
     <string name="requeststt">Muốn được kết bạn !</string>
     <string name="myBestFriends">Bạn thân</string>
@@ -52,4 +52,5 @@
     <string name="captionaddfriendsupload">Thêm bạn bè làm người đóng góp để họ tự thêm ảnh, bài viết văn bản và nhiều nội dung khác của chính mình</string>
     <string name="Whohaveaccesstosee">Ai có quyền xem bài viết của bạn?</string>
     <string name="CapWhoSee">Bài viết của bạn sẽ hiễn thị trong bản tin , trên trang cá nhân và trong kết quả tìm kiếm</string>
+    <string name="agora_app_id">d50679e6192f4e28a5f6a5e8bc40eed2</string>
 </resources>

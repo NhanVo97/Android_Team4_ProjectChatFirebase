@@ -21,9 +21,8 @@ public class GaleryAdapter extends BaseAdapter {
     Context context;
     int Layout;
     LayoutInflater layoutInflater;
-    public GaleryAdapter(Context context,int Layout, List<Galery> list)
-    {
-        this.galeryList=list;
+    public GaleryAdapter(Context context,int Layout, List<Galery> list) {
+        this.galeryList = list;
         this.context=context;
         this.Layout=Layout;
     }
@@ -45,9 +44,7 @@ public class GaleryAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final ViewHolder viewHolder;
-
-        if(convertView==null)
-        {
+        if(convertView==null) {
             viewHolder = new ViewHolder();
             layoutInflater= (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView=layoutInflater.inflate(Layout,null);
@@ -55,24 +52,21 @@ public class GaleryAdapter extends BaseAdapter {
             viewHolder.textNum = convertView.findViewById(R.id.numberstt);
             convertView.setTag(viewHolder);
         }
-        else
-        {
+        else {
             viewHolder = (ViewHolder)convertView.getTag();
         }
-        if(galeryList.get(position).isCheck())
-        {
+        if(galeryList.get(position).isCheck()) {
             viewHolder.textNum.setVisibility(View.VISIBLE);
             viewHolder.textNum.setText(galeryList.get(position).getNum());
         }
-        else
-        {
+        else {
             viewHolder.textNum.setText("");
             viewHolder.textNum.setVisibility(View.GONE);
-
         }
-        if(galeryList.get(position).getLink()!=null)
-        {
-            Glide.with(convertView.getContext()).load(galeryList.get(position).getLink()).into(viewHolder.imGalery);
+        if(galeryList.get(position).getLink()!=null) {
+            Glide.with(convertView.getContext())
+                    .load(galeryList.get(position).getLink())
+                    .into(viewHolder.imGalery);
         }
         else
         {

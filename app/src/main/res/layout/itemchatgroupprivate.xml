@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:padding="10dp"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:src="@drawable/noavt"
+        android:id="@+id/cvAvt"
+        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+    <TextView
+        android:visibility="gone"
+        android:layout_marginLeft="30dp"
+        android:id="@+id/tvTimeSend"
+        android:layout_toRightOf="@id/cvAvt"
+        android:text="lúc 13:22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:padding="10dp"
+        android:textColor="#FFF"
+        android:background="@drawable/custommessage2"
+        android:layout_marginLeft="10dp"
+        android:text="Bạn đang làm gì đó"
+        android:layout_below="@id/tvTimeSend"
+        android:layout_centerInParent="true"
+        android:layout_toRightOf="@id/cvAvt"
+        android:id="@+id/tvMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/tvPeopleWatch"
+        android:visibility="gone"
+        android:layout_marginLeft="30dp"
+        android:text="Đức nhân đã xem"
+        android:layout_toRightOf="@id/cvAvt"
+        android:layout_below="@id/tvMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</RelativeLayout>

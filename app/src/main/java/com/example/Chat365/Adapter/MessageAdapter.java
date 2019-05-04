@@ -90,14 +90,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             holder.show_message.setText(chat.getMessage());
         }
         fuser = FirebaseAuth.getInstance().getCurrentUser();
-        if (!chat.getUser().getAvatar().equals("") && !chat.getUser().getId().equals(fuser.getUid()) && chat.getTime().equals("Đã Nhận")){
-            Picasso.get().load(chat.getUser().getAvatar()).into(holder.profile_image);
+        if (!chat.getUser().getLinkAvatar().equals("") && !chat.getUser().getId().equals(fuser.getUid()) && chat.getTime().equals("Đã Nhận")){
+            Picasso.get().load(chat.getUser().getLinkAvatar()).into(holder.profile_image);
         }
         else if(mChat.get(position).getIsseen().equals("true"))
         {
-            if(!chat.getUser().getAvatar().equals(""))
+            if(!chat.getUser().getLinkAvatar().equals(""))
             {
-                Picasso.get().load(chat.getUser().getAvatar()).into(holder.profile_image);
+                Picasso.get().load(chat.getUser().getLinkAvatar()).into(holder.profile_image);
             }
 
         }

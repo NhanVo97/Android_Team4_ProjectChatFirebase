@@ -1,25 +1,20 @@
 package com.example.Chat365.Fragment;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.Chat365.Activity.HomeActivity;
-import com.example.Chat365.Activity.Post;
+import com.example.Chat365.Activity.Post.PostActivity;
 import com.example.Chat365.Adapter.PostAdapter;
 import com.example.Chat365.Model.PostStatus;
 import com.example.Chat365.Model.User;
@@ -31,8 +26,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -62,14 +55,18 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
         user = session.getUser();
         if(user == null){
             backToHome();
+        } else {
+            if(user.getLinkAvatar()!=null){
+                Picasso.get().load(user.getLinkAvatar()).into(imAvt);
+            }
         }
-        Picasso.get().load(user.getAvatar()).into(imAvt);
+
     }
 
     public void getData() {
         listPost.clear();
         mData.keepSynced(true);
-        mData.child("Post").addChildEventListener(new ChildEventListener() {
+        mData.child("PostActivity").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 PostStatus postStatus = dataSnapshot.getValue(PostStatus.class);
@@ -132,6 +129,17 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
         lv.setHasFixedSize(true);
         lv.setLayoutManager(new LinearLayoutManager(getContext()));
         lv.setAdapter(postAdapter);
+        // Event
+        editStt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), PostActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("User",user);
+                intent.putExtra("BundleUser",bundle);
+                startActivity(intent);
+            }
+        });
         return v;
     }
 

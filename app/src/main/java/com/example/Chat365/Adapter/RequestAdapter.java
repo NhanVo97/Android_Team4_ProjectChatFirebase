@@ -65,9 +65,9 @@ public class RequestAdapter extends BaseAdapter {
             viewHolder = (RequestAdapter.ViewHolder)convertView.getTag();
         }
         final User u = listUser.get(position);
-        if(!u.getAvatar().equals(""))
+        if(!u.getLinkAvatar().equals(""))
         {
-            Picasso.get().load(u.getAvatar()).into(viewHolder.imAvatarequest);
+            Picasso.get().load(u.getLinkAvatar()).into(viewHolder.imAvatarequest);
         }
         viewHolder.tvnickrequest.setText(u.getName());
         final FirebaseUser currentUser= FirebaseAuth.getInstance().getCurrentUser();

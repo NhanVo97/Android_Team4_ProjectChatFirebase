@@ -40,8 +40,7 @@ public class OtherAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
-        if(convertView==null)
-        {
+        if(convertView==null) {
             viewHolder = new ViewHolder();
             convertView = layoutInflater.inflate(R.layout.otheritems,parent,false);
             viewHolder.tvName = convertView.findViewById(R.id.tvName);

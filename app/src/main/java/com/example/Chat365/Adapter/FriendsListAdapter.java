@@ -63,9 +63,9 @@ public class FriendsListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder)convertView.getTag();
         }
         User u = listUser.get(position);
-        if(!u.getAvatar().equals(""))
+        if(!u.getLinkAvatar().equals(""))
         {
-            Picasso.get().load(u.getAvatar()).into(viewHolder.imlistfr);
+            Picasso.get().load(u.getLinkAvatar()).into(viewHolder.imlistfr);
         }
         if(!u.getStatus().equals(""))
         {

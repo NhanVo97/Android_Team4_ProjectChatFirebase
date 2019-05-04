@@ -1,20 +1,22 @@
 package com.example.Chat365.Activity;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.Chat365.Model.User;
+import com.example.Chat365.Activity.User.LoginActivity;
+import com.example.Chat365.Activity.User.MainActivity;
+import com.example.Chat365.Activity.User.RegisterActivity;
 import com.example.Chat365.R;
+import com.example.Chat365.Utils.Constant;
 import com.example.Chat365.Utils.Management.Session;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -38,11 +40,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener{
@@ -62,6 +60,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
         currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
+            Session session = new Session(mData,mAuth.getCurrentUser(),getApplicationContext(), false);
+            session.initUser();
             goToMain();
         }
     }
@@ -75,11 +75,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private void goToLogin() {
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private void goToRegister() {
         Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private void init() {
@@ -94,7 +96,20 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         mData = FirebaseDatabase.getInstance().getReference();
         mCallbackManager = CallbackManager.Factory.create();
     }
+    private void askPermissionLocation() {
+        if ((ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
 
+            if ((ActivityCompat.shouldShowRequestPermissionRationale(HomeActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION))) {
+
+
+            } else {
+                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION
+
+                        },
+                        Constant.REQUEST_PERMISSIONS_LOCATION);
+            }
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +118,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         init();
         // set read permisision email
         btnLoginFacebook.setReadPermissions(Arrays.asList(EMAIL));
+        // ask Location
+        askPermissionLocation();
         //Event button login & register with email
         btnLogin.setOnClickListener(this);
         btnRegister.setOnClickListener(this);
@@ -143,7 +160,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                             // Sign in success, update information
                             final FirebaseUser user = mAuth.getCurrentUser();
                             boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
-                            Session session = new Session(mData, user, getApplicationContext(), isNewUser);
+                            Log.e("AAA",isNewUser+"");
+                            Session session = new Session(mData,user, getApplicationContext(), isNewUser);
                             session.initUser();
                             goToMain();
                         } else {
@@ -188,8 +206,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             final FirebaseUser user = mAuth.getCurrentUser();
-                            boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
-                            Session session = new Session(mData,user,getApplicationContext(),isNew);
+                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
+                            Log.e("AAA",isNewUser+"");
+                            Session session = new Session(mData,user, getApplicationContext(), isNewUser);
                             session.initUser();
                             goToMain();
                         } else {

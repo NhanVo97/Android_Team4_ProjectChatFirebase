@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +16,10 @@ import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.example.Chat365.Activity.HomeActivity;
-import com.example.Chat365.Activity.MessagerActivity;
-import com.example.Chat365.Activity.OnlineActivity;
-import com.example.Chat365.Activity.RoomChat;
-import com.example.Chat365.Activity.StatusDialog;
+import com.example.Chat365.Activity.User.MessagerActivity;
+import com.example.Chat365.Activity.User.OnlineActivity;
+import com.example.Chat365.Activity.Chat.RoomChatActivity;
+import com.example.Chat365.Fragment.DialogCustom.StatusDialog;
 import com.example.Chat365.Adapter.FriendsAdapter;
 import com.example.Chat365.Adapter.ListRoomAdapter;
 import com.example.Chat365.Adapter.RequestAdapter;
@@ -38,7 +37,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,15 +104,14 @@ public class FragmentGroup extends Fragment implements StatusDialog.statusListen
         }
 
     }
-
     private void checkOnline() {
+
         mData.child("Users").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                User uAll = dataSnapshot.getValue(User.class);
-                if (uAll.getIsOnline().equals("true")) {
-                    User u = new User(uAll.getName(), uAll.getPassword(), uAll.getEmail(), uAll.getSex(), uAll.getBirthday(), uAll.getLevel(), uAll.getHistory(), uAll.getProvince(), uAll.getAvatar(), uAll.getHomeTown(), uAll.getWork(), uAll.getStudy(), uAll.getRelationship(), uAll.getId(), uAll.getIsOnline(), uAll.getStatus(), uAll.getTimestamp());
-                    listOnline.add(u);
+                User user = dataSnapshot.getValue(User.class);
+                if (user != null && user.getIsOnline().equals("true")) {
+                    listOnline.add(user);
                 }
             }
 
@@ -335,11 +332,8 @@ public class FragmentGroup extends Fragment implements StatusDialog.statusListen
                     lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Intent intent = new Intent(getActivity(), RoomChat.class);
-                            Bundle bundle = new Bundle();
-                            bundle.putInt("IDRoom", position);
-                            bundle.putSerializable("User", user);
-                            intent.putExtra("RoomChat", bundle);
+                            Intent intent = new Intent(getActivity(), RoomChatActivity.class);
+                            intent.putExtra("IDRoom", position);
                             startActivity(intent);
                         }
                     });

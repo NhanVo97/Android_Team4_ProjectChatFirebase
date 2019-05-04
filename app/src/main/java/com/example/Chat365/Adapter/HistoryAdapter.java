@@ -53,9 +53,9 @@ public class HistoryAdapter extends BaseAdapter {
             viewHolder = (ViewHolder)view.getTag();
         }
         User o = listUser.get(i);
-        if(!o.getAvatar().equals(""))
+        if(!o.getLinkAvatar().equals(""))
         {
-            Picasso.get().load(o.getAvatar()).into(viewHolder.imIcon);
+            Picasso.get().load(o.getLinkAvatar()).into(viewHolder.imIcon);
         }
         else
         {

@@ -17,8 +17,8 @@ public class Message {
         this.user = user;
         this.message = message;
         this.time = Time;
-        this.key=key;
-        this.isseen=isseen;
+        this.key = key;
+        this.isseen = isseen;
     }
 
     public User getUser() {

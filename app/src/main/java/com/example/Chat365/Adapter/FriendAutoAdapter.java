@@ -45,8 +45,8 @@ public class FriendAutoAdapter extends ArrayAdapter<User> {
 
         if (user != null) {
             textViewName.setText(user.getName());
-            if(!user.getAvatar().equals("")) {
-                Picasso.get().load(user.getAvatar()).into(imageViewFlag);
+            if(!user.getLinkAvatar().equals("")) {
+                Picasso.get().load(user.getLinkAvatar()).into(imageViewFlag);
             }
             else
             {

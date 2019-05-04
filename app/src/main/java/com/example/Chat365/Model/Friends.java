@@ -6,6 +6,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 public class Friends {
     private String id;
     private String Status;
+    private boolean isCheck;
 
     public Friends() {
     }
@@ -31,4 +32,11 @@ public class Friends {
         Status = status;
     }
 
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
+    }
 }

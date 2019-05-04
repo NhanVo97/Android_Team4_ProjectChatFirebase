@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.Chat365.Activity.RegisterActivity">
+    tools:context="com.example.Chat365.Activity.User.RegisterActivity">
 
     <TextView
         android:id="@+id/textView"

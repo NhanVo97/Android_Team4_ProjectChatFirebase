@@ -15,23 +15,20 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.example.Chat365.Activity.HomeActivity;
-import com.example.Chat365.Activity.ProfileActivity;
+import com.example.Chat365.Activity.User.ProfileActivity;
 import com.example.Chat365.Adapter.OtherAdapter;
 import com.example.Chat365.Model.Other;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
+import com.example.Chat365.Utils.Constant;
 import com.example.Chat365.Utils.Management.Session;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +44,6 @@ public class FragmentOther extends Fragment {
     private DatabaseReference mData;
     private User user;
     private Session session;
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     private void sendToHome() {
         Intent intent = new Intent(getActivity(), HomeActivity.class);
@@ -61,18 +55,21 @@ public class FragmentOther extends Fragment {
         user = session.getUser();
         if (user == null) {
             sendToHome();
+        } else {
+            btnUser.setText(user.getName());
+            btnUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), ProfileActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("User", user);
+                    intent.putExtra("UserBundle", bundle);
+                    startActivity(intent);
+                }
+            });
         }
-        btnUser.setText(user.getName());
-        btnUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), ProfileActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("User", user);
-                intent.putExtra("UserBundle", bundle);
-                startActivity(intent);
-            }
-        });
+
+
     }
 
     @Override
@@ -91,6 +88,7 @@ public class FragmentOther extends Fragment {
         otherList.add(new Other(R.drawable.groupcolor, "Nhóm"));
         otherList.add(new Other(R.drawable.camera, "Album ảnh"));
         otherList.add(new Other(R.drawable.users, "Tìm bạn bè"));
+        otherList.add(new Other(R.drawable.placeholder, "Tìm quanh đây"));
         otherList.add(new Other(R.drawable.settings, "Cài đặt"));
         otherList.add(new Other(R.drawable.logout, "Đăng Xuất"));
     }
@@ -104,7 +102,7 @@ public class FragmentOther extends Fragment {
         btnUser = v.findViewById(R.id.btnUser);
         mCurrent = FirebaseAuth.getInstance();
         mData = FirebaseDatabase.getInstance().getReference();
-        session = new Session(mData, mCurrent.getCurrentUser(), getActivity(), false);
+        session = new Session(mData,mCurrent.getCurrentUser(),getActivity(), false);
         mData.keepSynced(true);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -122,26 +120,37 @@ public class FragmentOther extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                if (position == 0) {
-                    FragmentGroupPrivate fragmentGroupPrivate = new FragmentGroupPrivate();
-                    fragmentTransaction.replace(R.id.frag_other, fragmentGroupPrivate).addToBackStack("tag").commit();
-                }
-                if (position == 1) {
-                    FragmentAlbums fragmentAlbums = new FragmentAlbums();
-                    fragmentTransaction.replace(R.id.frag_other, fragmentAlbums).addToBackStack("tag").commit();
-                }
-                if (position == 2) {
-                    FragmentSearch fragmentSearch = new FragmentSearch();
-                    fragmentTransaction.replace(R.id.frag_other, fragmentSearch).addToBackStack("tag").commit();
-                }
-                if (position == 4) {
-                    if (mCurrent != null) {
-                        session.detroyUser(user);
-                        LoginManager.getInstance().logOut();
-                        mCurrent.signOut();
-                        mGoogleSignInClient.signOut();
-                        sendtoHome();
-                    }
+                switch (position){
+                    case Constant.GROUP:
+                        FragmentGroupPrivate fragmentGroupPrivate = new FragmentGroupPrivate();
+                        fragmentTransaction.replace(R.id.frag_other, fragmentGroupPrivate)
+                                            .addToBackStack("tag").commit();
+                        break;
+                    case Constant.ALBUM_GALERY:
+                        FragmentAlbums fragmentAlbums = new FragmentAlbums();
+                        fragmentTransaction.replace(R.id.frag_other, fragmentAlbums)
+                                            .addToBackStack("tag").commit();
+                        break;
+                    case Constant.FIND_FRIEND:
+                        FragmentSearch fragmentSearch = new FragmentSearch();
+                        fragmentTransaction.replace(R.id.frag_other, fragmentSearch)
+                                            .addToBackStack("tag").commit();
+                        break;
+                    case Constant.FIND_FRIEND_NEAR:
+                        FragmentFindFriendNear fragmentFindFriendNear = new FragmentFindFriendNear();
+                        fragmentTransaction.replace(R.id.frag_other, fragmentFindFriendNear)
+                                .addToBackStack("tag").commit();
+                        break;
+                    case Constant.SETTING:
+                        break;
+                    case Constant.LOG_OUT:
+                            session.detroyUser(user);
+                            LoginManager.getInstance().logOut();
+                            mCurrent.signOut();
+                            mGoogleSignInClient.signOut();
+                            sendtoHome();
+                        break;
+
                 }
             }
         });

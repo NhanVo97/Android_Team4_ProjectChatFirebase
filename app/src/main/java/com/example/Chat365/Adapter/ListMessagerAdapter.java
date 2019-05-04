@@ -39,9 +39,9 @@ public class ListMessagerAdapter extends RecyclerView.Adapter<ListMessagerAdapte
     @Override
     public void onBindViewHolder(@NonNull final ListMessagerAdapter.ViewHolder holder, int position) {
         Message m = listMessager.get(position);
-        if(!m.getUser().getAvatar().equals(""))
+        if(!m.getUser().getLinkAvatar().equals(""))
         {
-            Picasso.get().load(m.getUser().getAvatar()).into(holder.imlistfr);
+            Picasso.get().load(m.getUser().getLinkAvatar()).into(holder.imlistfr);
         }
         if(m.getUser().getIsOnline().equals("true"))
         {

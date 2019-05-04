@@ -56,6 +56,7 @@ public class OnlineAdapter extends BaseAdapter {
             viewHolder.tvNickName = convertView.findViewById(R.id.tvnicknameuser);
             viewHolder.ivAvatar =convertView.findViewById(R.id.imavataruser);
             viewHolder.tt = convertView.findViewById(R.id.tvChucvu);
+            viewHolder.tvAddress = convertView.findViewById(R.id.tvAddress);
             convertView.setTag(viewHolder);
         }
         else
@@ -87,17 +88,18 @@ public class OnlineAdapter extends BaseAdapter {
         {
             viewHolder.tt.setText("Người lạ");
         }
-        if(!u.getAvatar().equals(""))
+        if(!u.getLinkAvatar().equals(""))
         {
-            Picasso.get().load(u.getAvatar()).into(viewHolder.ivAvatar);
+            Picasso.get().load(u.getLinkAvatar()).into(viewHolder.ivAvatar);
         }
 
         viewHolder.tvNickName.setText(u.getName());
+        viewHolder.tvAddress.setText(u.getLocationUser().getAddress()!=null ?u.getLocationUser().getAddress() : "" );
         return convertView;
     }
     private class ViewHolder
     {
-        TextView tvNickName,tt;
+        TextView tvNickName,tt,tvAddress;
         ImageView ivAvatar;
     }
 }

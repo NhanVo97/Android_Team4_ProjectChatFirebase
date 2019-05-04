@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/browser_actions_bg_grey"
-    tools:context="com.example.Chat365.Activity.CreateAlbum">
+    tools:context="com.example.Chat365.Activity.Galery.AlbumActivity">
     <android.support.v7.widget.Toolbar
         android:id="@+id/tbcreatealbum"
         android:layout_width="match_parent"
