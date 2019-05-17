@@ -13,7 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.Chat365.Adapter.ListAlbumAdapter;
+import com.example.Chat365.Adapter.UserAdapter.AlbumAdapter.ListAlbumAdapter;
 import com.example.Chat365.Model.Album;
 import com.example.Chat365.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -101,11 +101,11 @@ public class FragmentAlbums extends Fragment{
                     quyen = dataSnapshot.child("quyen").getValue().toString();
                 }
 
-                Map<String,String> listFriends = (Map<String, String>) dataSnapshot.child("listFriends").getValue();
-                Map<String,String> listHinh = (Map<String, String>) dataSnapshot.child("listHinh").getValue();
-                Album album = new Album(name,caption,quyen,listFriends,listHinh);
-                listAlbum.add(album);
-                listAlbumAdapter.notifyDataSetChanged();
+//                Map<String,String> listFriends = (Map<String, String>) dataSnapshot.child("listFriends").getValue();
+//                Map<String,String> listHinh = (Map<String, String>) dataSnapshot.child("listHinh").getValue();
+//                Album album = new Album(name,caption,quyen,listFriends,listHinh);
+//                listAlbum.add(album);
+//                listAlbumAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -129,10 +129,11 @@ public class FragmentAlbums extends Fragment{
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 List<String> list = new ArrayList<>();
-                for (Map.Entry<String, String> entry : listAlbum.get(i).getListHinh().entrySet()) {
-                    String value = entry.getValue();
-                    list.add(value);
-                }
+//
+//                for (Map.Entry<String, String> entry : listAlbum.get(i).getListHinh().entrySet()) {
+//                    String value = entry.getValue();
+//                    list.add(value);
+//                }
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 FragmentGalery fragmentGalery = new FragmentGalery();

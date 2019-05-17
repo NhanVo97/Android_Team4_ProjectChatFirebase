@@ -7,13 +7,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.Chat365.Activity.HomeActivity;
 import com.example.Chat365.Activity.User.MessagerActivity;
-import com.example.Chat365.Adapter.ListMessagerAdapter;
+import com.example.Chat365.Adapter.UserAdapter.ListMessagerAdapter;
 import com.example.Chat365.Model.Message;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
@@ -39,6 +41,7 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
     ListMessagerAdapter messagerAdapter;
     User user;
     List<Message> list;
+    TextView tvStatus;
 
     public void getUser() {
         Session session = new Session(mData,mAuth.getCurrentUser(),getActivity(), false);
@@ -62,7 +65,6 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
     }
 
     private void LoadDataKey(String x) {
-        list.clear();
         Query lastQuery = mData.child("PrivateChat").child(mAuth.getCurrentUser().getUid()).child(x).orderByKey().limitToLast(1);
         lastQuery.addChildEventListener(new ChildEventListener() {
             @Override
@@ -72,6 +74,7 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
                     list.add(message);
                 }
                 messagerAdapter.notifyDataSetChanged();
+                updateStatus();
             }
 
             @Override
@@ -84,12 +87,15 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
                     }
                 }
                 messagerAdapter.notifyDataSetChanged();
+                updateStatus();
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 Message message = dataSnapshot.getValue(Message.class);
                 list.remove(message);
+                messagerAdapter.notifyDataSetChanged();
+                updateStatus();
             }
 
             @Override
@@ -105,13 +111,28 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
     }
 
     private void LoadData() {
-
-        mData.child("PrivateChat").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        list.clear();
+        mData.child("PrivateChat").child(mAuth.getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if(dataSnapshot.exists()){
                     LoadDataKey(dataSnapshot.getKey());
                 }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
             }
 
             @Override
@@ -121,7 +142,15 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
         });
 
     }
-
+    private void updateStatus(){
+        if(list.size() > 0){
+            recyclerView.setVisibility(View.VISIBLE);
+            tvStatus.setVisibility(View.GONE);
+        } else {
+            recyclerView.setVisibility(View.GONE);
+            tvStatus.setVisibility(View.VISIBLE);
+        }
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -130,11 +159,13 @@ public class FragmentHome extends Fragment implements ListMessagerAdapter.Oncall
         mData = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         recyclerView = v.findViewById(R.id.lvSMS);
+        tvStatus = v.findViewById(R.id.tvStatus);
         list = new ArrayList<>();
         messagerAdapter = new ListMessagerAdapter(this, list);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(messagerAdapter);
+        updateStatus();
         return v;
     }
 

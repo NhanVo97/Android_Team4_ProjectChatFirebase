@@ -179,7 +179,7 @@ public class CallVideoOneActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(LOG_TAG, Log.getStackTraceString(e));
 
-            throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
+            throw new RuntimeException("NEED TO iCcheck rtc sdk init fatal error\n" + Log.getStackTraceString(e));
         }
     }
 

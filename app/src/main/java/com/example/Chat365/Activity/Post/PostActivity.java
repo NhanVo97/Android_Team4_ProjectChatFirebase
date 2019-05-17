@@ -4,7 +4,9 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -20,13 +22,13 @@ import com.example.Chat365.Activity.Galery.AlbumActivity;
 import com.example.Chat365.Activity.Galery.AllGaleryActivity;
 import com.example.Chat365.Activity.User.MainActivity;
 import com.example.Chat365.Activity.User.QuyenActivity;
-import com.example.Chat365.Adapter.GaleryAdapter;
-import com.example.Chat365.Adapter.SpinnerAdapter;
-import com.example.Chat365.Model.Galery;
+import com.example.Chat365.Adapter.AnotherAdapter.SpinnerAdapter;
+import com.example.Chat365.Model.Gallery;
 import com.example.Chat365.Model.Other;
 import com.example.Chat365.Model.PostStatus;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;;
+import com.example.Chat365.Utils.Management.Session;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -46,240 +48,93 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class PostActivity extends AppCompatActivity {
-    Spinner spAccess,spAlbum;
-    SpinnerAdapter spinnerAdapter,spinnerAdapter2;
-    List<Other> spAccessList,spListAlbum;
-    ImageView imAvatar,imGalery;
-    GridView imPosthinh;
-    TextView tvName,btnShare;
-    FirebaseAuth mAuth;
-    EditText edND;
-    String Access="";
-    String Album="";
-    DatabaseReference mData;
-    User user=null;
-    FirebaseStorage storage;
-    List<Galery> linkAnh;
-    StorageReference storageRef;
-    UploadTask uploadTask;
+import static com.example.Chat365.Utils.Constant.REQUEST_CODE_ALBUM;
+import static com.example.Chat365.Utils.Constant.REQUEST_CODE_GALERY;
+import static com.example.Chat365.Utils.Constant.REQUEST_CODE_PERMISSION;
 
+public class PostActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
+        View.OnClickListener, View.OnTouchListener {
+    private Spinner spPermission,spAlbum;
+    private SpinnerAdapter spAdapterPermission, spAdapterAlbum;
+    private List<Other> permissionList, listAlbum;
+    private ImageView imAvatar,imGalery;
+    private GridView imPosthinh;
+    private TextView tvName,btnShare;
+    private FirebaseAuth mAuth;
+    private EditText edStatusPost;
+    private String permission = "";
+    private String album = "";
+    private DatabaseReference mData;
+    private User user = null;
+    private FirebaseStorage storage;
+    private List<Gallery> linkAnh;
+    private StorageReference storageRef;
+    private UploadTask uploadTask;
+    private android.support.v7.widget.Toolbar tbPost;
+    Session session;
+    private void initData(){
+        // Action bar & set data
+        tbPost = findViewById(R.id.tbQuyen);
+        setSupportActionBar(tbPost);
+        getSupportActionBar().setTitle("Tạo bài viết");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Other view
+        imAvatar = findViewById(R.id.imavtpost);
+        tvName = findViewById(R.id.tvNamePost);
+        btnShare = findViewById(R.id.btnShare);
+        edStatusPost = findViewById(R.id.edPostSTT);
+        imGalery = findViewById(R.id.btnGalery);
+        imPosthinh = findViewById(R.id.imPosthinh);
+        // List init
+        permissionList = new ArrayList<>();
+        listAlbum = new ArrayList<>();
+        // Spinner permission & Album
+        spPermission = findViewById(R.id.spAccess);
+        spAlbum = findViewById(R.id.spAlbum);
+
+        // Init Firebase
+        mData = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageRef= storage.getReference();
+
+        // Init data spinner permission
+        permissionList.add(new Other(R.drawable.congkhai,"Công Khai"));
+        permissionList.add(new Other(R.drawable.withmyfriends,"Bạn Bè"));
+        permissionList.add(new Other(R.drawable.riengtu,"Chỉ Mình Tôi"));
+        spAdapterPermission = new SpinnerAdapter(this,R.layout.customspinner, permissionList);
+        spPermission.setAdapter(spAdapterPermission);
+        // init data ablum
+        listAlbum.add(new Other(R.drawable.add,"MyAlbum"));
+        spAdapterAlbum = new SpinnerAdapter(this,R.layout.customspinner, listAlbum);
+        spAlbum.setAdapter(spAdapterAlbum);
+        // session
+        session = new Session(this);
+        user = session.getUser();
+        tvName.setText(user.getName());
+        if(!user.getLinkAvatar().isEmpty()){
+            Picasso.get().load(user.getLinkAvatar()).into(imAvatar);
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
-        // ANh Xa
-        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.tbQuyen);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Tạo bài viết");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(PostActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-            }
-        });
-        spAccess = findViewById(R.id.spAccess);
-        spAlbum = findViewById(R.id.spAlbum);
-        spAccessList = new ArrayList<>();
-        spAccessList.add(new Other(R.drawable.congkhai,"Công Khai"));
-        spAccessList.add(new Other(R.drawable.withmyfriends,"Bạn Bè"));
-        spAccessList.add(new Other(R.drawable.riengtu,"Chỉ Mình Tôi"));
-        spListAlbum = new ArrayList<>();
-        imAvatar = findViewById(R.id.imavtpost);
-        tvName = findViewById(R.id.tvNamePost);
-        btnShare = findViewById(R.id.btnShare);
-        edND = findViewById(R.id.edPostSTT);
-        mData = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
-        storage = FirebaseStorage.getInstance();
-        imGalery =findViewById(R.id.btnGalery);
-        imPosthinh =findViewById(R.id.imPosthinh);
-        storageRef= storage.getReference();
-        spinnerAdapter = new SpinnerAdapter(this,R.layout.customspinner,spAccessList);
-        spAccess.setAdapter(spinnerAdapter);
-        spListAlbum.add(new Other(R.drawable.add,"MyAlbum"));
-        spinnerAdapter2 = new SpinnerAdapter(this,R.layout.customspinner,spListAlbum);
-        spAlbum.setAdapter(spinnerAdapter2);
-        // DATA
-        final Intent intent= getIntent();
-        Bundle bundle = intent.getBundleExtra("BundleUser");
-        Bundle bdPicture = intent.getBundleExtra("BundleLinkAnh");
-
-        if(bdPicture!=null)
-        {
-            String ndtext = bdPicture.getString("ND");
-            // Image camera
-            if(!ndtext.equals(""))
-            {
-                edND.setText(ndtext);
-            }
-            else {
-                edND.setHint("Hãy nói gì đó về bức ảnh này...");
-            }
-            String quyen = bdPicture.getString("Quyen");
-            if(!quyen.equals(""))
-            {
-                spAccess.setSelection(Integer.parseInt(quyen));
-            }
-            String Album = bdPicture.getString("Album");
-            if(Album!=null)
-            {
-                if(!Album.equals("Album"))
-                {
-                    spListAlbum.add(new Other(R.drawable.macdinh,Album));
-                    spAlbum.setSelection((spListAlbum.size()-1));
-                }
-            }
-
-            User mBackuser = (User) bdPicture.getSerializable("User");
-            tvName.setText(mBackuser.getName());
-            user=mBackuser;
-            Picasso.get().load(mBackuser.getLinkAvatar()).into(imAvatar);
-            linkAnh = (List<Galery>) bdPicture.getSerializable("LinkAnh");
-            if(linkAnh!=null)
-            {
-                GaleryAdapter galeryAdapter = new GaleryAdapter(this,R.layout.itemgalery,linkAnh);
-                imPosthinh.setAdapter(galeryAdapter);
-            }
-
-        }
-        if(bundle!=null)
-        {
-            user = (User) bundle.getSerializable("User");
-            tvName.setText(user.getName());
-            String NameAlbums = bundle.getString("NameAlbums");
-            String Quyen = bundle.getString("Quyen");
-
-            if(Quyen!=null)
-            {
-                spAccess.setSelection(Integer.parseInt(Quyen));
-            }
-            String ND = bundle.getString("ND");
-
-            if(NameAlbums!=null)
-            {
-                spListAlbum.add(new Other(R.drawable.macdinh,NameAlbums));
-                spAlbum.setSelection((spListAlbum.size()-1));
-            }
-            if(ND!=null)
-            {
-                edND.setText(ND);
-            }
-            if(!user.getLinkAvatar().equals(""))
-            {
-                Picasso.get().load(user.getLinkAvatar()).into(imAvatar);
-            }
-        }
-
-
-        spAccess.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Access=String.valueOf(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        spAccess.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_UP)
-                {
-                    Intent callCreateAccess = new Intent(getApplicationContext(), QuyenActivity.class);
-                    Bundle bundle1 = new Bundle();
-                    bundle1.putSerializable("User",user);
-                    bundle1.putString("ND",edND.getText().toString());
-                    bundle1.putString("Quyen",Access);
-                    bundle1.putString("Album",Album);
-                    callCreateAccess.putExtra("BundleUser",bundle1);
-                    startActivity(callCreateAccess);
-                }
-                return true;
-            }
-        });
-        spAlbum.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Other other = spListAlbum.get(position);
-                Album = other.getStr();
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        spAlbum.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_UP)
-                {
-                    Intent callCreateAlbum = new Intent(getApplicationContext(), AlbumActivity.class);
-                    Bundle bundle1 = new Bundle();
-                    bundle1.putSerializable("User",user);
-                    bundle1.putString("ND",edND.getText().toString());
-                    bundle1.putString("Quyen",Access);
-                    callCreateAlbum.putExtra("BundleUser",bundle1);
-                    startActivity(callCreateAlbum);
-                }
-                return true;
-            }
-        });
-        btnShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String ND = edND.getText().toString();
-                if(ND.equals("") && linkAnh==null)
-                {
-                    Toast.makeText(getApplicationContext(),"Nội dung bài viết không được bỏ trống!",Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    addData(user,ND);
-                    Toast.makeText(getApplicationContext(),"Thêm bài viết thành công!",Toast.LENGTH_SHORT).show();
-                    Intent callback = new Intent(getApplicationContext(),MainActivity.class);
-                    startActivity(callback);
-                    finish();
-                }
-
-            }
-        });
-        // Ask permission
-
-        imGalery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent galery = new Intent(getApplicationContext(), AllGaleryActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("User",user);
-                if(linkAnh!=null)
-                {
-                    bundle.putSerializable("LinkAnh", (ArrayList<Galery>) linkAnh);
-                }
-                String ND = edND.getText().toString();
-                bundle.putString("ND",ND);
-                bundle.putString("Quyen",Access);
-                bundle.putString("Album",Album);
-                galery.putExtra("BundleUser",bundle);
-                startActivity(galery);
-
-            }
-        });
-
-        edND.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        initData();
+        // Event
+        spPermission.setOnItemSelectedListener(this);
+        spPermission.setOnTouchListener(this);
+        spAlbum.setOnItemSelectedListener(this);
+        spAlbum.setOnTouchListener(this);
+        imGalery.setOnClickListener(this);
+        btnShare.setOnClickListener(this);
+        edStatusPost.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-
                 Rect r = new Rect();
-                edND.getWindowVisibleDisplayFrame(r);
-                int screenHeight = edND.getRootView().getHeight();
+                edStatusPost.getWindowVisibleDisplayFrame(r);
+                int screenHeight = edStatusPost.getRootView().getHeight();
                 int keypadHeight = screenHeight - r.bottom;
-
                 if (keypadHeight > screenHeight * 0.15) {
                    imPosthinh.setVisibility(View.INVISIBLE);
                 }
@@ -288,19 +143,25 @@ public class PostActivity extends AppCompatActivity {
                 }
             }
         });
-
+        tbPost.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(PostActivity.this, MainActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            }
+        });
     }
 
 
 
-    private void addData(final User user, final String ND) {
+    private void postStatus(final User user, final String ND) {
         Intent intent = getIntent();
-        //List<Galery> linkAnh = intent.ge("LinkAnh");
+        //List<Gallery> linkGalery = intent.ge("LinkAnh");
         final String key = mData.push().getKey();
         PostStatus postStatus=null;
         Calendar calendar = Calendar.getInstance();
         final List<String> listLinkAnh = new ArrayList<>();
-        final StorageReference mountainsRef = storageRef.child("PostActivity/"+user.getId()+"/"+Album+"/"+calendar.getTimeInMillis()+".png");
+        final StorageReference mountainsRef = storageRef.child("PostActivity/"+user.getId()+"/"+ album +"/"+calendar.getTimeInMillis()+".png");
         if(linkAnh!=null)
         {
             if(linkAnh.get(0).getByteArray()==null)
@@ -308,7 +169,7 @@ public class PostActivity extends AppCompatActivity {
                 for(int i=0;i<linkAnh.size();i++)
                 {
                     Uri file = Uri.fromFile(new File(linkAnh.get(i).getLink()));
-                    final StorageReference riversRef = storageRef.child("PostActivity/"+user.getId()+"/"+Album+file.getLastPathSegment());
+                    final StorageReference riversRef = storageRef.child("PostActivity/"+user.getId()+"/"+ album +file.getLastPathSegment());
                     uploadTask = riversRef.putFile(file);
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -337,7 +198,7 @@ public class PostActivity extends AppCompatActivity {
                                         Uri downloadUri = task.getResult();
                                         listLinkAnh.add(downloadUri+"");
                                         updateEvent(listLinkAnh,key,ND);
-                                        mData.child("Albums").child(user.getId()).child(Album).child("listHinh").push().setValue(downloadUri+"");
+                                        mData.child("Albums").child(user.getId()).child(album).child("listHinh").push().setValue(downloadUri+"");
                                     } else {
 
                                     }
@@ -380,7 +241,7 @@ public class PostActivity extends AppCompatActivity {
                                     Uri downloadUri = task.getResult();
                                     listLinkAnh.add(downloadUri+"");
                                     updateEvent(listLinkAnh,key,ND);
-                                    mData.child("Albums").child(user.getId()).child(Album).child("listHinh").push().setValue(downloadUri+"");
+                                    mData.child("Albums").child(user.getId()).child(album).child("listHinh").push().setValue(downloadUri+"");
                                 } else {
 
                                 }
@@ -393,7 +254,7 @@ public class PostActivity extends AppCompatActivity {
 
         }
         else {
-            postStatus = new PostStatus(key, ND, 0, Access, mAuth.getCurrentUser().getUid(), null,false);
+            postStatus = new PostStatus(key, ND, 0, permission, mAuth.getCurrentUser().getUid(), null,false);
             mData.child("PostActivity").child(key).setValue(postStatus);
             mData.child("PostActivity").child(key).child("time").setValue(ServerValue.TIMESTAMP);
         }
@@ -401,8 +262,99 @@ public class PostActivity extends AppCompatActivity {
     }
 
     private void updateEvent(List<String> listLinkAnh, String key, String ND) {
-        PostStatus postStatus = new PostStatus(key,ND,0,Access,mAuth.getCurrentUser().getUid(),listLinkAnh,false);
+        PostStatus postStatus = new PostStatus(key,ND,0, permission,mAuth.getCurrentUser().getUid(),listLinkAnh,false);
         mData.child("PostActivity").child(key).setValue(postStatus);
         mData.child("PostActivity").child(key).child("time").setValue(ServerValue.TIMESTAMP);
+    }
+
+    // get value spinner select
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        int idSelect = view.getId();
+        switch (idSelect){
+            case R.id.spAccess:
+                permission = String.valueOf(position);
+                break;
+            case R.id.spAlbum:
+                Other other = listAlbum.get(position);
+                album = other.getStr();
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id){
+            case R.id.btnShare:
+                String postText = edStatusPost.getText().toString();
+                if(postText.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),"Nội dung bài viết không được bỏ trống!",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    postStatus(user,postText);
+                    Toast.makeText(getApplicationContext(),"Thêm bài viết thành công!",Toast.LENGTH_SHORT).show();
+                    Intent callback = new Intent(getApplicationContext(),MainActivity.class);
+                    startActivity(callback);
+                    finish();
+                }
+                break;
+            case R.id.btnGalery:
+                Intent galeryPage = new Intent(getApplicationContext(), AllGaleryActivity.class);
+                startActivityForResult(galeryPage,REQUEST_CODE_GALERY);
+             break;
+        }
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        int id = v.getId();
+        switch (id){
+            case R.id.spAccess:
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    Intent pagePermission = new Intent(getApplicationContext(), QuyenActivity.class);
+                    permission = !permission.isEmpty() ? permission : "0";
+                    pagePermission.putExtra("Quyen",permission);
+                    startActivityForResult(pagePermission,REQUEST_CODE_PERMISSION);
+                }
+                return true;
+            case R.id.spAlbum:
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    Intent pageCreateAlbum = new Intent(getApplicationContext(), AlbumActivity.class);
+                    startActivityForResult(pageCreateAlbum,REQUEST_CODE_ALBUM);
+                }
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode){
+            case REQUEST_CODE_ALBUM:
+                String nameAlbum = data.getStringExtra("nameAlbum");
+                Log.e("Album",nameAlbum);
+                if(!nameAlbum.equals("album")) {
+                    listAlbum.add(new Other(R.drawable.macdinh,nameAlbum));
+                    spAlbum.setSelection((listAlbum.size()-1));
+                }
+                break;
+            case REQUEST_CODE_GALERY:
+                 linkAnh = (List<Gallery>) data.getBundleExtra("BundleLinkAnh")
+                         .getSerializable("LinkAnh");
+                Log.e("LINKANHSIZE",linkAnh.size()+"");
+                break;
+            case REQUEST_CODE_PERMISSION:
+                int positionPermission = data.getIntExtra("positionPermission",0);
+                spPermission.setSelection(positionPermission);
+                Log.e("positionPermission",positionPermission+"");
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

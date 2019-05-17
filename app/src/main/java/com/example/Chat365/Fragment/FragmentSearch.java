@@ -14,8 +14,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.Chat365.Activity.User.ProfileActivity;
-import com.example.Chat365.Adapter.FriendAutoAdapter;
-import com.example.Chat365.Adapter.HistoryAdapter;
+import com.example.Chat365.Adapter.UserAdapter.SearchBoxAdapter.FriendAutoSearchAdapter;
+import com.example.Chat365.Adapter.UserAdapter.SearchBoxAdapter.HistorySearchAdapter;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,10 +36,10 @@ public class FragmentSearch extends Fragment {
     TextView tvLichSu;
     AutoCompleteTextView autoND;
     DatabaseReference mData;
-    FriendAutoAdapter friendAutoAdapter;
+    FriendAutoSearchAdapter friendAutoSearchAdapter;
     ListView listView;
     FirebaseAuth mAuth;
-    HistoryAdapter historyAdapter;
+    HistorySearchAdapter historySearchAdapter;
 
     public void getUser() {
         listUser.clear();
@@ -51,8 +51,8 @@ public class FragmentSearch extends Fragment {
                     User user = dataSnapshot.getValue(User.class);
                     if (!user.getId().equals(mAuth.getUid())) {
                         listUser.add(user);
-                        friendAutoAdapter = new FriendAutoAdapter(getActivity(), listUser);
-                        autoND.setAdapter(friendAutoAdapter);
+                        friendAutoSearchAdapter = new FriendAutoSearchAdapter(getActivity(), listUser);
+                        autoND.setAdapter(friendAutoSearchAdapter);
                     }
                 }
 
@@ -90,7 +90,7 @@ public class FragmentSearch extends Fragment {
                     User user = dataSnapshot.getValue(User.class);
                     listHistory.add(user);
                     Collections.reverse(listHistory);
-                    historyAdapter.notifyDataSetChanged();
+                    historySearchAdapter.notifyDataSetChanged();
                     tvLichSu.setVisibility(View.GONE);
                 } else {
                     tvLichSu.setVisibility(View.VISIBLE);
@@ -143,8 +143,8 @@ public class FragmentSearch extends Fragment {
             }
         });
 
-        historyAdapter = new HistoryAdapter(getActivity(), listHistory);
-        listView.setAdapter(historyAdapter);
+        historySearchAdapter = new HistorySearchAdapter(getActivity(), listHistory);
+        listView.setAdapter(historySearchAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

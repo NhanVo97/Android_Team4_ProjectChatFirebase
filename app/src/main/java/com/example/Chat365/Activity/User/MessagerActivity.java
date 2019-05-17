@@ -22,12 +22,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.Chat365.Adapter.HinhAdapter;
-import com.example.Chat365.Adapter.MessageAdapter;
+import com.example.Chat365.Adapter.UserAdapter.MessagePrivateAdapter;
+import com.example.Chat365.Adapter.UserAdapter.PostAdapter.PictureAdapter;
 import com.example.Chat365.Model.Message;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
 import com.example.Chat365.Utils.Constant;
+import com.example.Chat365.Utils.Management.Session;
 import com.example.Chat365.Utils.TimeUtils;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,13 +42,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,56 +59,28 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.example.Chat365.Utils.PermissionUtils.checkPermissionREAD_EXTERNAL_STORAGE;
 
-public class MessagerActivity extends AppCompatActivity implements MessageAdapter.Oncallback {
-    RecyclerView recyclerView,rclistPicture;
-    List<Message> listchat;
-    Button btnsend;
-    EditText editText;
-    DatabaseReference mData,mUser;
-    MessageAdapter messageAdapter;
-    CircleImageView profile_image;
-    TextView username,tt;
-    FirebaseAuth mAuth;
-    User currentuser;
-    ImageButton imCamera,imPicture;
+public class MessagerActivity extends AppCompatActivity implements PictureAdapter.OnCallback, View.OnClickListener {
+
+    private Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private RecyclerView rcMessagePrivate, rclistPicture;
+    private Toolbar toolbarMessage;
+    private Button btnSend;
+    private EditText edChatBox;
+    private LinearLayout layoutGaleryHide;
+    private CircleImageView profile_image;
+    private TextView username, tvStatusActivity;
+    private ImageButton imCamera, imPicture;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+    private DatabaseReference mData;
+    private User userChat,currentUser;
+    private List<String> listGalery;
+    private List<Message> listMessage;
     int Request_Code_Image = 123;
-    FirebaseStorage storage;
-    StorageReference storageRef;
-    public LinearLayout linearLayout;
-    User user=null;
-    List<String> list = new ArrayList();
-    Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-    HinhAdapter hinhAdapter;
-
-    public void setUser(User user) {
-        this.currentuser = user;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        getUser();
-    }
-
-    public void getUser()
-    {
-        mUser.child("Users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists())
-                {
-                    User user = dataSnapshot.getValue(User.class);
-                    setUser(user);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
+    private MessagePrivateAdapter messagePrivateAdapter;
+    private PictureAdapter pictureAdapter;
+    private Session session;
+    private UploadTask uploadTask;
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
@@ -115,16 +88,8 @@ public class MessagerActivity extends AppCompatActivity implements MessageAdapte
             case Constant
                     .REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    ContentResolver contentResolver = getContentResolver();
-                    Cursor cursor = contentResolver.query(uri,null,null,null,null);
-                    cursor.moveToFirst();
-                    while (!cursor.isAfterLast())
-                    {
-                        String link = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                        list.add(link);
-                        cursor.moveToNext();
-                    }
-                    hinhAdapter.notifyDataSetChanged();
+                    loadGalery();
+                    pictureAdapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(this, "Từ chối quyền truy cập đa phương tiện",
                             Toast.LENGTH_SHORT).show();
@@ -135,157 +100,119 @@ public class MessagerActivity extends AppCompatActivity implements MessageAdapte
                         grantResults);
         }
     }
+    private void AnhXa(){
+        // session
+        session = new Session(this);
+        currentUser = session.getUser();
+        toolbarMessage = findViewById(R.id.toolbar);
+        rcMessagePrivate = findViewById(R.id.reyclerview_message_list);
+        btnSend = findViewById(R.id.button_chatbox_send);
+        edChatBox = findViewById(R.id.edittext_chatbox);
+        profile_image = findViewById(R.id.profile_image);
+        username = findViewById(R.id.tvNameGroup);
+        tvStatusActivity = findViewById(R.id.sttuser);
+        imCamera = findViewById(R.id.imCameraMS);
+        imPicture = findViewById(R.id.imPictureShow);
+        layoutGaleryHide = findViewById(R.id.linerHinh);
+        rclistPicture = findViewById(R.id.rcHinh);
+        // Firebase Init
+        mData = FirebaseDatabase.getInstance().getReference("PrivateChat");
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+        // init list
+        listMessage = new ArrayList<>();
+        listGalery = new ArrayList<>();
+        // init adapter
+        pictureAdapter = new PictureAdapter(listGalery,this);
+        rclistPicture.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(MessagerActivity.this,
+                LinearLayoutManager.HORIZONTAL, false);
+        rclistPicture.setLayoutManager(layoutManager);
+        rclistPicture.setAdapter(pictureAdapter);
+
+        messagePrivateAdapter = new MessagePrivateAdapter( listMessage, getSupportFragmentManager());
+        rcMessagePrivate.setHasFixedSize(true);
+        rcMessagePrivate.setLayoutManager(new LinearLayoutManager(this));
+        rcMessagePrivate.setAdapter(messagePrivateAdapter);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messager);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        mAuth=FirebaseAuth.getInstance();
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        // Anh Xa
+        AnhXa();
+       // Init Data
+        initData();
+        // Event
+        imCamera.setOnClickListener(this);
+        imPicture.setOnClickListener(this);
+        btnSend.setOnClickListener(this);
+        toolbarMessage.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MessagerActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                startActivity(new Intent(MessagerActivity.this, MainActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }
         });
-        // Anh Xa
-        listchat = new ArrayList<>();
-        recyclerView = findViewById(R.id.reyclerview_message_list);
-        btnsend = findViewById(R.id.button_chatbox_send);
-        editText = findViewById(R.id.edittext_chatbox);
-        profile_image = findViewById(R.id.profile_image);
-        username = findViewById(R.id.tvNameGroup);
-        tt = findViewById(R.id.sttuser);
-        imCamera = findViewById(R.id.imCameraMS);
-        imPicture=findViewById(R.id.imPictureShow);
-        linearLayout=findViewById(R.id.linerHinh);
-        rclistPicture = findViewById(R.id.rcHinh);
-        listchat = new ArrayList<>();
-        mData = FirebaseDatabase.getInstance().getReference("PrivateChat");
-        mUser =FirebaseDatabase.getInstance().getReference();
-        storage = FirebaseStorage.getInstance();
-        storageRef= storage.getReference();
-        mData.keepSynced(true);
-        mUser.keepSynced(true);
-        Intent intent = getIntent();
-        Bundle bundle = intent.getBundleExtra("PrivateChat");
-        if(bundle!=null)
-        {
-            user = (User) bundle.getSerializable("User");
-            final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            if(!user.getLinkAvatar().equals(""))
-            {
-                Picasso.get().load(user.getLinkAvatar()).into(profile_image);
-            }
-            else
-            {
-                profile_image.setImageResource(R.drawable.noavt);
-            }
-            if(user.getIsOnline().equals("true"))
-            {
-                tt.setText("Đang hoạt động");
-            }
-            else
-            {
-                TimeUtils timeUtils = new TimeUtils();
-                long lastTime = user.getTimestamp();
-                String lastSeenTime = TimeUtils.getTimeAgo(lastTime, getApplicationContext());
-                tt.setText(lastSeenTime);
-            }
-            username.setText(user.getName());
-            LoadData(currentUser,user);
-            btnsend.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String ND = editText.getText().toString();
-                    if(ND.equals(""))
-                    {
-                        Toast.makeText(getApplicationContext(),"Tin nhắn không được bỏ trống!",Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
-                        AddData(ND,user,currentUser);
-                        editText.setText("");
-                    }
-
-                }
-            });
-            imCamera.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(intent,Request_Code_Image);
-                    imCamera.setImageResource(R.drawable.camera_active);
-                }
-            });
-            imPicture.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    linearLayout.setVisibility(View.VISIBLE);
-                    imPicture.setImageResource(R.drawable.hinh_active);
-                    if (checkPermissionREAD_EXTERNAL_STORAGE(MessagerActivity.this)) {
-                        ContentResolver contentResolver = getContentResolver();
-                        Cursor cursor = contentResolver.query(uri,null,null,null,null);
-                        cursor.moveToFirst();
-                        while (!cursor.isAfterLast())
-                        {
-                            String link = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                            list.add(link);
-                            cursor.moveToNext();
-                        }
-                    }
-                    hinhAdapter = new HinhAdapter(new HinhAdapter.Oncallback() {
-                        @Override
-                        public void onItemClick(int position) {
-
-                        }
-                    }, list,user,currentuser,linearLayout);
-                    rclistPicture.setHasFixedSize(true);
-                    LinearLayoutManager layoutManager
-                            = new LinearLayoutManager(MessagerActivity.this, LinearLayoutManager.HORIZONTAL, false);
-                    rclistPicture.setLayoutManager(layoutManager);
-                    rclistPicture.setAdapter(hinhAdapter);
-                }
-            });
-            messageAdapter = new MessageAdapter(this,listchat,getSupportFragmentManager());
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setAdapter(messageAdapter);
-        }
     }
 
-    public void AddData(String ND, User user, FirebaseUser current) {
+    private void initData() {
+        // set action bar custom
+        setSupportActionBar(toolbarMessage);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // get userChat from another activity
+        Intent intent = getIntent();
+        Bundle bundle = intent.getBundleExtra("PrivateChat");
+        userChat = (User) bundle.getSerializable("User");
+        // set Avatar
+        if (!userChat.getLinkAvatar().equals("")) {
+            Picasso.get().load(userChat.getLinkAvatar()).into(profile_image);
+        } else {
+            profile_image.setImageResource(R.drawable.noavt);
+        }
+        // Check time activity
+        if (userChat.getIsOnline().equals("true")) {
+            tvStatusActivity.setText("Đang hoạt động");
+        } else {
+            String lastSeenTime = TimeUtils.getTimeAgo(userChat.getTimestamp(), getApplicationContext());
+            tvStatusActivity.setText(lastSeenTime);
+        }
+        // set name
+        username.setText(userChat.getName());
+        // load list chat
+        LoadData(currentUser,userChat);
+    }
+
+    public void sendMessage(String ND, User user, User currentUser) {
         String key = mData.push().getKey();
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        String Time = sdf.format(cal.getTime());
-        Message messageSend = new Message(user,ND,Time,key,"false");
-        mData.child(current.getUid()).child(user.getId()).child(key).setValue(messageSend);
-        Message messagereceived = new Message(currentuser,ND,"Đã Nhận",key,"false");
-        mData.child(user.getId()).child(current.getUid()).child(key).setValue(messagereceived);
+        String time = sdf.format(cal.getTime());
+        // sent
+        Message messageSend = new Message(user, ND, time, key, "false");
+        mData.child(currentUser.getId()).child(user.getId()).child(key).setValue(messageSend);
+        // received
+        Message messageReceived = new Message(currentUser, ND, "Đã Nhận", key, "false");
+        mData.child(user.getId()).child(currentUser.getId()).child(key).setValue(messageReceived);
     }
 
-    private void LoadData(final FirebaseUser currentUser, final User user) {
-       listchat.clear();
-        mData.child(currentUser.getUid()).child(user.getId()).addChildEventListener(new ChildEventListener() {
+    private void LoadData(final User currentUser, final User user) {
+        listMessage.clear();
+        mData.child(currentUser.getId()).child(user.getId()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if(dataSnapshot.exists())
-                {
+                if (dataSnapshot.exists()) {
                     Message message = dataSnapshot.getValue(Message.class);
-                    if(message.getTime().equals("Đã Nhận"))
-                    {
+                    if (message.getTime().equals("Đã Nhận")) {
                         Calendar cal = Calendar.getInstance();
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
                         String Time = sdf.format(cal.getTime());
-                        mData.child(currentUser.getUid()).child(user.getId()).child(message.getKey()).child("isseen").setValue("true");
-                        mData.child(currentUser.getUid()).child(user.getId()).child(message.getKey()).child("time").setValue(Time);
+                        mData.child(currentUser.getId()).child(user.getId()).child(message.getKey()).child("isSeen").setValue("true");
+                        mData.child(currentUser.getId()).child(user.getId()).child(message.getKey()).child("time").setValue(Time);
                     }
-                    listchat.add(message);
+                    listMessage.add(message);
                 }
-                    messageAdapter.notifyDataSetChanged();
+                messagePrivateAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -296,12 +223,10 @@ public class MessagerActivity extends AppCompatActivity implements MessageAdapte
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 String key = dataSnapshot.getKey();
-                for(Message m : listchat)
-                {
-                    if(m.getKey().equals(key))
-                    {
-                        listchat.remove(m);
-                        messageAdapter.notifyDataSetChanged();
+                for (Message m : listMessage) {
+                    if (m.getKey().equals(key)) {
+                        listMessage.remove(m);
+                        messagePrivateAdapter.notifyDataSetChanged();
                         break;
                     }
                 }
@@ -319,61 +244,114 @@ public class MessagerActivity extends AppCompatActivity implements MessageAdapte
         });
     }
 
-    @Override
-    public void onItemClick(int position) {
-
-    }
+    // take of photo and send message
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode==Request_Code_Image && resultCode == RESULT_OK && data!=null)
-        {
-            Calendar calendar = Calendar.getInstance();
-            final StorageReference mountainsRef = storageRef.child("Messager/"+mAuth.getCurrentUser().getUid()+"/"+calendar.getTimeInMillis()+".png");
+        if (requestCode == Request_Code_Image && resultCode == RESULT_OK && data != null) {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] byteArray = stream.toByteArray();
-            try {
-                final UploadTask uploadTask = mountainsRef.putBytes(byteArray);
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                            @Override
-                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                                if (!task.isSuccessful()) {
-                                    throw task.getException();
-                                }
-
-                                // Continue with the task to get the download URL
-                                return mountainsRef.getDownloadUrl();
-                            }
-                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Uri> task) {
-                                if (task.isSuccessful()) {
-                                    Uri downloadUri = task.getResult();
-                                    AddData(downloadUri.toString(),user,mAuth.getCurrentUser());
-                                } else {
-
-                                }
-                            }
-                        });
-                    }
-                });
-            stream.close();
-            bitmap.recycle();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+            uploadProcessGalery(null,"Message/",byteArray);
+            imCamera.setImageResource(R.drawable.camera_notactive);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+    // get picture from internal storage
+    private void loadGalery(){
+        listGalery.clear();
+        if (checkPermissionREAD_EXTERNAL_STORAGE(MessagerActivity.this)) {
+            ContentResolver contentResolver = getContentResolver();
+            Cursor cursor = contentResolver.query(uri, null, null, null, null);
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                String link = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                listGalery.add(link);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+    }
+    private void uploadProcessGalery(Uri linkGalery,String path,byte[] byteArray){
+         StorageReference riversRef ;
+        Calendar calendar = Calendar.getInstance();
+        if(byteArray == null){
+            riversRef = storageRef.child(path + currentUser.getId()
+                    + "/" + linkGalery.getLastPathSegment());
+            uploadTask = riversRef.putFile(linkGalery);
+        } else {
+            riversRef = storageRef.child(path + currentUser.getId() + "/" + calendar.getTimeInMillis() + ".png");
+            uploadTask = riversRef.putBytes(byteArray);
+        }
 
+        final StorageReference finalRiversRef = riversRef;
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Xu ly K thanh cong
+                Toast.makeText(getApplicationContext(), "Up hình lỗi, Xin thử lại!", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // Thanh Cong
+                uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return finalRiversRef.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            sendMessage(downloadUri.toString(),userChat,currentUser);
+                        }
+                    }
+                });
+
+            }
+        });
+    }
+    // Event click view
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id){
+            case R.id.imCameraMS:
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, Request_Code_Image);
+                imCamera.setImageResource(R.drawable.camera_active);
+            break;
+            case R.id.imPictureShow:
+                // enable layout hide & set image active
+                layoutGaleryHide.setVisibility(View.VISIBLE);
+                imPicture.setImageResource(R.drawable.hinh_active);
+                // load picture from internal storage
+                loadGalery();
+                pictureAdapter.notifyDataSetChanged();
+
+            break;
+            case R.id.button_chatbox_send:
+                String messageChat = edChatBox.getText().toString();
+                if (messageChat.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Tin nhắn không được bỏ trống!", Toast.LENGTH_SHORT).show();
+                } else {
+                    sendMessage(messageChat, userChat, currentUser);
+                    edChatBox.setText("");
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onPictureClick(int position) {
+        Uri file = Uri.fromFile(new File(listGalery.get(position)));
+        uploadProcessGalery(file,"Message/",null);
+        layoutGaleryHide.setVisibility(View.GONE);
+        imPicture.setImageResource(R.drawable.hinh_notactive);
+    }
 }

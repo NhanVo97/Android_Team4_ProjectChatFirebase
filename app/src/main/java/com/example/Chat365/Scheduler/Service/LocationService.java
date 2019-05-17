@@ -19,11 +19,11 @@ import java.util.TimerTask;
  * Created by deepshikha on 24/11/16.
  */
 
-public class LocationService extends Service implements LocationListener{
+public class LocationService extends Service implements LocationListener {
 
     boolean isGPSEnable = false;
     boolean isNetworkEnable = false;
-    double latitude,longitude;
+    double latitude, longitude;
     LocationManager locationManager;
     Location location;
     private Handler mHandler = new Handler();
@@ -48,9 +48,8 @@ public class LocationService extends Service implements LocationListener{
         super.onCreate();
 
         mTimer = new Timer();
-        mTimer.schedule(new TimerTaskToGetLocation(),5,notify_interval);
+        mTimer.schedule(new TimerTaskToGetLocation(), 5, notify_interval);
         intent = new Intent(str_receiver);
-//        fn_getlocation();
     }
 
     @Override
@@ -73,21 +72,21 @@ public class LocationService extends Service implements LocationListener{
 
     }
 
-    private void fn_getlocation(){
-        locationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+    private void fn_getlocation() {
+        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         isGPSEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         isNetworkEnable = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-        if (!isGPSEnable && !isNetworkEnable){
+        if (!isGPSEnable && !isNetworkEnable) {
 
-        }else {
+        } else {
 
-            if (isNetworkEnable){
+            if (isNetworkEnable) {
                 location = null;
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000,0,this);
-                if (locationManager!=null){
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, this);
+                if (locationManager != null) {
                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                    if (location!=null){
+                    if (location != null) {
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
                         fn_update(location);
@@ -97,12 +96,12 @@ public class LocationService extends Service implements LocationListener{
             }
 
 
-            if (isGPSEnable){
+            if (isGPSEnable) {
                 location = null;
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0,this);
-                if (locationManager!=null){
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+                if (locationManager != null) {
                     location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    if (location!=null){
+                    if (location != null) {
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
                         fn_update(location);
@@ -115,7 +114,7 @@ public class LocationService extends Service implements LocationListener{
 
     }
 
-    private class TimerTaskToGetLocation extends TimerTask{
+    private class TimerTaskToGetLocation extends TimerTask {
         @Override
         public void run() {
 
@@ -129,10 +128,10 @@ public class LocationService extends Service implements LocationListener{
         }
     }
 
-    private void fn_update(Location location){
+    private void fn_update(Location location) {
 
-        intent.putExtra("latutide",location.getLatitude()+"");
-        intent.putExtra("longitude",location.getLongitude()+"");
+        intent.putExtra("latutide", location.getLatitude() + "");
+        intent.putExtra("longitude", location.getLongitude() + "");
         sendBroadcast(intent);
     }
 

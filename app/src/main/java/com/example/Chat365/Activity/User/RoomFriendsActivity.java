@@ -13,10 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,9 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.example.Chat365.Adapter.FriendsChatAdapter;
-import com.example.Chat365.Adapter.HinhAdapter;
+import com.example.Chat365.Adapter.UserAdapter.GroupChatAdapter.FriendChatAdapter;
+import com.example.Chat365.Adapter.UserAdapter.PostAdapter.PictureAdapter;
 import com.example.Chat365.Fragment.FragmentGroupInfo;
 import com.example.Chat365.Model.GroupFriends;
 import com.example.Chat365.Model.Message;
@@ -36,6 +31,11 @@ import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
 import com.example.Chat365.Utils.Constant;
 import com.example.Chat365.Utils.Management.Session;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -45,15 +45,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.example.Chat365.Utils.PermissionUtils.checkPermissionREAD_EXTERNAL_STORAGE;
 
-public class RoomFriendsActivity extends AppCompatActivity implements View.OnClickListener {
+public class RoomFriendsActivity extends AppCompatActivity implements View.OnClickListener,PictureAdapter.OnCallback {
     Button btnsend;
     TextView tvNameGroup,tvActivity,tvInfo;
     RecyclerView rcListChat,rclistPicture;
@@ -64,14 +68,15 @@ public class RoomFriendsActivity extends AppCompatActivity implements View.OnCli
     List<Message> listChat;
     FirebaseStorage storage;
     StorageReference storageRef;
+    UploadTask uploadTask;
     ImageButton imCamera,imPicture;
-    List<String> list;
+    List<String> listHinh;
     Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-    HinhAdapter hinhAdapter;
+    PictureAdapter pictureAdapter;
     LinearLayout linearLayout;
     User user;
     EditText editText;
-    FriendsChatAdapter friendsChatAdapter;
+    FriendChatAdapter friendChatAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,14 +97,14 @@ public class RoomFriendsActivity extends AppCompatActivity implements View.OnCli
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
-        list = new ArrayList<>();
+        listHinh = new ArrayList<>();
         listChat = new ArrayList<>();
         Session session = new Session(mData,mUser,getApplicationContext(),false);
         user = session.getUser();
-        friendsChatAdapter = new FriendsChatAdapter(listChat);
+        friendChatAdapter = new FriendChatAdapter(listChat);
         rcListChat.setHasFixedSize(true);
         rcListChat.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        rcListChat.setAdapter(friendsChatAdapter);
+        rcListChat.setAdapter(friendChatAdapter);
         // Get Data
         Bundle bundle = getIntent().getBundleExtra("BundleGr");
         friends = (GroupFriends) bundle.getSerializable("FriendsGroup");
@@ -110,7 +115,6 @@ public class RoomFriendsActivity extends AppCompatActivity implements View.OnCli
         imPicture.setOnClickListener(this);
         btnsend.setOnClickListener(this);
         tvInfo.setOnClickListener(this);
-
     }
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -124,10 +128,10 @@ public class RoomFriendsActivity extends AppCompatActivity implements View.OnCli
                     cursor.moveToFirst();
                     while (!cursor.isAfterLast()) {
                         String link = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                        list.add(link);
+                        listHinh.add(link);
                         cursor.moveToNext();
                     }
-                    hinhAdapter.notifyDataSetChanged();
+                    pictureAdapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(this, "Từ chối quyền truy cập đa phương tiện",
                             Toast.LENGTH_SHORT).show();
@@ -140,20 +144,69 @@ public class RoomFriendsActivity extends AppCompatActivity implements View.OnCli
     }
     private void initData() {
         if(!friends.getLinkAvatar().isEmpty()){
-            Glide.with(getApplicationContext())
-                    .load(friends.getLinkAvatar().isEmpty())
-                    .centerCrop()
-                    .placeholder(R.drawable.spinne_loading)
-                    .into(imAvt);
+            Picasso.get().load(friends.getLinkAvatar()).into(imAvt);
         }
         tvNameGroup.setText(friends.getNameGroup());
-        // Check active friends list
-        mData.child("ChatFriends").child(friends.getKey()).addChildEventListener(new ChildEventListener() {
+
+        // get last
+        mData.child("RoomFriend").child(friends.getKey())
+                .orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(dataSnapshot.exists()){
+                    Message message = dataSnapshot.getValue(Message.class);
+                    String dayTime = message.getTime().split("-")[0];
+                    String lastTime = message.getTime().split("-")[1];
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy-hh:mm:ss");
+                    String currentTime = sdf.format(new Date());
+                    if(lastTime.compareTo(currentTime) > 0 ){
+                        tvActivity.setText("hoạt động ngày "+dayTime);
+                    } else {
+                        tvActivity.setText("hoạt động lúc "+lastTime);
+                    }
+                } else {
+                    tvActivity.setText("Chưa có ai hoạt động");
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(dataSnapshot.exists()){
+                    Message message = dataSnapshot.getValue(Message.class);
+                    String dayTime = message.getTime().split("-")[0];
+                    String lastTime = message.getTime().split("-")[1];
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy-hh:mm:ss");
+                    String currentTime = sdf.format(new Date());
+                    if(lastTime.compareTo(currentTime) > 0 ){
+                        tvActivity.setText("hoạt động ngày "+dayTime);
+                    } else {
+                        tvActivity.setText("hoạt động lúc "+lastTime);
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                tvActivity.setText("Chưa có ai hoạt động");
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        // Check data listHinh
+        mData.child("RoomFriend").child(friends.getKey()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                Message message = dataSnapshot.getValue(Message.class);
                listChat.add(message);
-                friendsChatAdapter.notifyDataSetChanged();
+                friendChatAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -178,14 +231,6 @@ public class RoomFriendsActivity extends AppCompatActivity implements View.OnCli
         });
 
     }
-    public void AddData(String ND, User user) {
-        String key = mData.push().getKey();
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        String Time = sdf.format(cal.getTime());
-        Message messageSend = new Message(user,ND,Time,key,"false");
-        mData.child("ChatFriends").child(friends.getKey()).child(key).setValue(messageSend);
-    }
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -196,30 +241,25 @@ public class RoomFriendsActivity extends AppCompatActivity implements View.OnCli
                 imCamera.setImageResource(R.drawable.camera_active);
                 break;
             case R.id.imPictureShow:
+                listHinh.clear();
                 linearLayout.setVisibility(View.VISIBLE);
                 imPicture.setImageResource(R.drawable.hinh_active);
                 if (checkPermissionREAD_EXTERNAL_STORAGE(RoomFriendsActivity.this)) {
                     ContentResolver contentResolver = getContentResolver();
                     Cursor cursor = contentResolver.query(uri,null,null,null,null);
                     cursor.moveToFirst();
-                    while (!cursor.isAfterLast())
-                    {
+                    while (!cursor.isAfterLast()) {
                         String link = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                        list.add(link);
+                        listHinh.add(link);
                         cursor.moveToNext();
                     }
                 }
-                hinhAdapter = new HinhAdapter(new HinhAdapter.Oncallback() {
-                    @Override
-                    public void onItemClick(int position) {
-
-                    }
-                }, list,user,user,linearLayout);
+                pictureAdapter = new PictureAdapter(listHinh,this);
                 rclistPicture.setHasFixedSize(true);
                 LinearLayoutManager layoutManager
                         = new LinearLayoutManager(RoomFriendsActivity.this, LinearLayoutManager.HORIZONTAL, false);
                 rclistPicture.setLayoutManager(layoutManager);
-                rclistPicture.setAdapter(hinhAdapter);
+                rclistPicture.setAdapter(pictureAdapter);
                 break;
             case R.id.button_chatbox_send:
                 String ND = editText.getText().toString();
@@ -227,16 +267,71 @@ public class RoomFriendsActivity extends AppCompatActivity implements View.OnCli
                     Toast.makeText(getApplicationContext(),"Tin nhắn không được bỏ trống!",Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    AddData(ND,user);
+                    AddData(ND,friends.getKey());
                     editText.setText("");
                 }
                 break;
             case R.id.btnInfo:
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentGroupInfo fragmentGroupInfo = new FragmentGroupInfo();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("FriendsGroup",friends);
+                fragmentGroupInfo.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.csLayOut,fragmentGroupInfo)
                         .addToBackStack("STACK").commit();
                 break;
         }
+    }
+
+    @Override
+    public void onPictureClick(int position) {
+        sendHinh(position);
+    }
+
+    private void sendHinh(int position) {
+        Uri file = Uri.fromFile(new File(listHinh.get(position)));
+        final StorageReference riversRef = storageRef.child("GroupChatPrivate/" + friends.getKey() + "/" + file.getLastPathSegment());
+        uploadTask = riversRef.putFile(file);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Xu ly K thanh cong
+                Toast.makeText(getApplicationContext(), "Up hình lỗi, Xin thử lại!", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // Thanh Cong
+                uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return riversRef.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            AddData(downloadUri.toString(),friends.getKey());
+                        }
+                    }
+                });
+
+            }
+        });
+    }
+    private void AddData(String ND,String keyRoomFriend) {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy-hh:mm:ss");
+        String Time = sdf.format(cal.getTime());
+        String key = mData.child("RoomFriend").push().getKey();
+        Message message = new Message(user,ND,Time,key,"false");
+        mData.child("RoomFriend").child(keyRoomFriend).child(key).setValue(message);
+        editText.setText("");
+        linearLayout.setVisibility(View.GONE);
+        imPicture.setImageResource(R.drawable.hinh_notactive);
     }
 }

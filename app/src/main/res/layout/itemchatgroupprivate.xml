@@ -23,7 +23,7 @@
         android:textColor="#FFF"
         android:background="@drawable/custommessage2"
         android:layout_marginLeft="10dp"
-        android:text="Bạn đang làm gì đó"
+        android:text="Loading..."
         android:layout_below="@id/tvTimeSend"
         android:layout_centerInParent="true"
         android:layout_toRightOf="@id/cvAvt"

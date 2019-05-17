@@ -1,27 +1,18 @@
 package com.example.Chat365.Model;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@IgnoreExtraProperties
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProfileButton {
     private int id;
     private String name;
-
-    public ProfileButton(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

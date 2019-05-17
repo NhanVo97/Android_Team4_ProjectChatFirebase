@@ -16,7 +16,7 @@ import android.widget.ListView;
 
 import com.example.Chat365.Activity.HomeActivity;
 import com.example.Chat365.Activity.User.ProfileActivity;
-import com.example.Chat365.Adapter.OtherAdapter;
+import com.example.Chat365.Adapter.AnotherAdapter.OtherAdapter;
 import com.example.Chat365.Model.Other;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;

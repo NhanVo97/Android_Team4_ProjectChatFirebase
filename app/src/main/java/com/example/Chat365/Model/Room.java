@@ -1,27 +1,20 @@
 package com.example.Chat365.Model;
 
-public class Room {
-    private int Icon;
-    private String Str;
+import com.google.firebase.database.IgnoreExtraProperties;
 
-    public Room(int icon, String str) {
-        Icon = icon;
-        Str = str;
-    }
+import java.io.Serializable;
 
-    public int getIcon() {
-        return Icon;
-    }
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    public void setIcon(int icon) {
-        Icon = icon;
-    }
-
-    public String getStr() {
-        return Str;
-    }
-
-    public void setStr(String str) {
-        Str = str;
-    }
+@IgnoreExtraProperties
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Room implements Serializable {
+    private int icon;
+    private String str;
 }

@@ -5,8 +5,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     xmlns:android="http://schemas.android.com/apk/res/android" />
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:id="@+id/layoutReplace"
+    android:layout_height="match_parent">
     <LinearLayout
+        android:layout_marginTop="10dp"
         android:id="@+id/layout_info"
         android:gravity="center"
         android:orientation="vertical"
@@ -49,6 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <TextView
+                    android:layout_marginTop="10dp"
                     android:text="Âm thanh"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -65,6 +69,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <TextView
+                    android:layout_marginTop="10dp"
                     android:text="Video"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -82,6 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <TextView
+                    android:layout_marginTop="10dp"
                     android:text="Thêm"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -99,6 +105,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <TextView
+                    android:layout_marginTop="10dp"
                     android:text="Trang cá nhân"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -115,6 +122,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <TextView
+                    android:layout_marginTop="10dp"
                     android:id="@+id/statusThongbao"
                     android:text="Tắt thông báo"
                     android:layout_width="wrap_content"
@@ -128,38 +136,38 @@
         android:layout_below="@+id/layout_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <RelativeLayout
-            android:id="@+id/rlColorSelect"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:padding="10dp"
-                android:text="Màu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:padding="10dp"
-                android:layout_alignParentEnd="true"
-                android:id="@+id/tvStatusColor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:id="@+id/rlEmotion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:padding="10dp"
-                android:text="Biểu tượng cảm xúc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:padding="10dp"
-                android:layout_alignParentEnd="true"
-                android:id="@+id/tvEmotionStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </RelativeLayout>
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/rlColorSelect"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+            <!--<TextView-->
+                <!--android:padding="10dp"-->
+                <!--android:text="Màu"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content" />-->
+            <!--<TextView-->
+                <!--android:padding="10dp"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:id="@+id/tvStatusColor"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content" />-->
+        <!--</RelativeLayout>-->
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/rlEmotion"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+            <!--<TextView-->
+                <!--android:padding="10dp"-->
+                <!--android:text="Biểu tượng cảm xúc"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content" />-->
+            <!--<TextView-->
+                <!--android:padding="10dp"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:id="@+id/tvEmotionStatus"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content" />-->
+        <!--</RelativeLayout>-->
 
         <RelativeLayout
             android:id="@+id/rlMember"
@@ -178,17 +186,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <android.support.v7.widget.RecyclerView
+                android:padding="10dp"
+                android:background="@drawable/borderedittext"
+                android:id="@+id/rcListFriend"
                 android:layout_below="@id/tvTotalMember"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
             </android.support.v7.widget.RecyclerView>
         </RelativeLayout>
-        <TextView
-            android:padding="10dp"
-            android:text="Biệt Danh"
-            android:id="@+id/btnBietDanh"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        <!--<TextView-->
+            <!--android:padding="10dp"-->
+            <!--android:text="Biệt Danh"-->
+            <!--android:id="@+id/btnBietDanh"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" />-->
         <TextView
             android:padding="10dp"
             android:text="Vị Trí Bạn Bè"

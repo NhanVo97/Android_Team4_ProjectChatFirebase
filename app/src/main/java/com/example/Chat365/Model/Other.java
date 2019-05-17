@@ -1,27 +1,18 @@
 package com.example.Chat365.Model;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@IgnoreExtraProperties
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Other  {
-    private int Icon;
-    private String Str;
-
-    public Other(int icon, String str) {
-        Icon = icon;
-        Str = str;
-    }
-
-    public int getIcon() {
-        return Icon;
-    }
-
-    public void setIcon(int icon) {
-        Icon = icon;
-    }
-
-    public String getStr() {
-        return Str;
-    }
-
-    public void setStr(String str) {
-        Str = str;
-    }
+    private int icon;
+    private String str;
 }

@@ -6,11 +6,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.example.Chat365.Adapter.ThongBaoAdapter;
+import com.example.Chat365.Adapter.UserAdapter.PostAdapter.NotificationAdapter;
 import com.example.Chat365.Model.ThongBao;
 import com.example.Chat365.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,14 +25,23 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentNotification extends Fragment implements ThongBaoAdapter.Oncallback {
+public class FragmentNotification extends Fragment implements NotificationAdapter.Oncallback {
     View v;
     DatabaseReference mData;
     FirebaseAuth mAuth;
-    ThongBaoAdapter thongBaoAdapter;
+    NotificationAdapter notificationAdapter;
     RecyclerView rcV;
     List<ThongBao> thongBaoList = new ArrayList<>();
-
+    TextView tvStatus;
+    private void updateStatus(){
+        if(thongBaoList.size() > 0){
+            rcV.setVisibility(View.VISIBLE);
+            tvStatus.setVisibility(View.GONE);
+        } else {
+            rcV.setVisibility(View.GONE);
+            tvStatus.setVisibility(View.VISIBLE);
+        }
+    }
     public void getData() {
         mData.child("TB").child(mAuth.getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
             @Override
@@ -39,7 +50,8 @@ public class FragmentNotification extends Fragment implements ThongBaoAdapter.On
                     ThongBao thongBao = dataSnapshot.getValue(ThongBao.class);
                     thongBaoList.add(thongBao);
                 }
-                thongBaoAdapter.notifyDataSetChanged();
+                notificationAdapter.notifyDataSetChanged();
+                updateStatus();
             }
 
             @Override
@@ -47,12 +59,13 @@ public class FragmentNotification extends Fragment implements ThongBaoAdapter.On
                 if (dataSnapshot.exists()) {
                     ThongBao thongBao = dataSnapshot.getValue(ThongBao.class);
                     for (int i = 0; i < thongBaoList.size(); i++) {
-                        if (thongBaoList.get(i).getID().equals(thongBao.getID())) {
+                        if (thongBaoList.get(i).getId().equals(thongBao.getId())) {
                             thongBaoList.set(i, thongBao);
                             break;
                         }
                     }
-                    thongBaoAdapter.notifyDataSetChanged();
+                    notificationAdapter.notifyDataSetChanged();
+                    updateStatus();
                 }
             }
 
@@ -60,7 +73,8 @@ public class FragmentNotification extends Fragment implements ThongBaoAdapter.On
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 ThongBao thongBao = dataSnapshot.getValue(ThongBao.class);
                 thongBaoList.remove(thongBao);
-                thongBaoAdapter.notifyDataSetChanged();
+                notificationAdapter.notifyDataSetChanged();
+                updateStatus();
             }
 
             @Override
@@ -82,10 +96,12 @@ public class FragmentNotification extends Fragment implements ThongBaoAdapter.On
         mData = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         rcV = v.findViewById(R.id.rcvListTb);
-        thongBaoAdapter = new ThongBaoAdapter(this, thongBaoList);
+        tvStatus = v.findViewById(R.id.tvStatus);
+        notificationAdapter = new NotificationAdapter(this, thongBaoList);
         rcV.setHasFixedSize(true);
         rcV.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rcV.setAdapter(thongBaoAdapter);
+        rcV.setAdapter(notificationAdapter);
+        updateStatus();
         getData();
         return v;
     }

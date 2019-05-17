@@ -21,15 +21,14 @@ import android.widget.Toast;
 
 import com.example.Chat365.Activity.HomeActivity;
 import com.example.Chat365.Activity.Post.PostActivity;
-import com.example.Chat365.Adapter.PostAdapter;
-import com.example.Chat365.Adapter.ProfileAdapter;
+import com.example.Chat365.Adapter.UserAdapter.PostAdapter.PostAdapter;
+import com.example.Chat365.Adapter.UserAdapter.ProfileButtonAdapter;
 import com.example.Chat365.Fragment.FragmentListFriends;
 import com.example.Chat365.Model.PostStatus;
 import com.example.Chat365.Model.ProfileButton;
 import com.example.Chat365.Model.RequestType;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
-import com.example.Chat365.Utils.Management.Session;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -44,22 +43,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ProfileActivity extends AppCompatActivity implements ProfileAdapter.Oncallback {
-    RecyclerView recyclerView;
-    List<ProfileButton> list;
-    ImageView ivBackground;
-    ImageView imageAvatar, imPost;
-    TextView tvName;
-    User user = null;
-    FirebaseUser current;
-    ProfileAdapter profileAdapter;
-    EditText edSTT;
-    boolean isChecked, ktBB;
+public class ProfileActivity extends AppCompatActivity implements ProfileButtonAdapter.Oncallback {
+    private RecyclerView recyclerView;
+    private List<ProfileButton> list;
+    private ImageView imageAvatar, imPost;
+    private TextView tvName;
+    private User user = null;
+    private FirebaseUser current;
+    private ProfileButtonAdapter profileButtonAdapter;
+    private EditText edSTT;
+    private boolean isChecked, ktBB;
     private DatabaseReference mData, mFriends;
-    List<PostStatus> listPost = new ArrayList<>();
-    PostAdapter postAdapter;
-    RecyclerView lv;
-    ConstraintLayout cstranlayout;
+    private List<PostStatus> listPost = new ArrayList<>();
+    private PostAdapter postAdapter;
+    private RecyclerView lv;
+    private ConstraintLayout cstranlayout;
 
     public void getData(final User user) {
         listPost.clear();
@@ -105,7 +103,6 @@ public class ProfileActivity extends AppCompatActivity implements ProfileAdapter
         actionBar.setTitle("Trang Cá Nhân");
         setContentView(R.layout.activity_profile);
         // Anh Xa
-        ivBackground = findViewById(R.id.backgroundAvatar);
         imageAvatar = findViewById(R.id.ibAvatar);
         tvName = findViewById(R.id.tvNameUser);
         lv = findViewById(R.id.rclistpostcanhan);
@@ -201,7 +198,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileAdapter
                         list.add(new ProfileButton(R.drawable.friends, "Đã là bạn bè"));
                         list.add(new ProfileButton(R.drawable.message2, "Gửi tin nhắn"));
                         list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
-                        profileAdapter.notifyDataSetChanged();
+                        profileButtonAdapter.notifyDataSetChanged();
                         checkBB(true);
                     } else {
                         checkBB(false);
@@ -237,7 +234,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileAdapter
                                     list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
                                     list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
                                 }
-                                profileAdapter.notifyDataSetChanged();
+                                profileButtonAdapter.notifyDataSetChanged();
                             }
 
                             @Override
@@ -259,10 +256,10 @@ public class ProfileActivity extends AppCompatActivity implements ProfileAdapter
 
         recyclerView = findViewById(R.id.recycleviewButton);
         recyclerView.setHasFixedSize(true);// toc do nhanh hon
-        // recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        // rcMessagePrivate.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3)); //so cot 3
-        profileAdapter = new ProfileAdapter(this, list);
-        recyclerView.setAdapter(profileAdapter);
+        profileButtonAdapter = new ProfileButtonAdapter(this, list);
+        recyclerView.setAdapter(profileButtonAdapter);
     }
 
     @Override
@@ -282,7 +279,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileAdapter
             fragmentTransaction.replace(R.id.layout_profile, fragmentListFriends).addToBackStack("tag").commit();
         } else {
             list.clear();
-            profileAdapter.notifyDataSetChanged();
+            profileButtonAdapter.notifyDataSetChanged();
             if (ktBB) {
 
             } else {
@@ -297,7 +294,7 @@ public class ProfileActivity extends AppCompatActivity implements ProfileAdapter
                     mFriendSent.removeValue();
                     DatabaseReference mFriendReceived = FirebaseDatabase.getInstance().getReference("Friends_Req").child(user.getId()).child(current.getUid());
                     mFriendReceived.removeValue();
-                    profileAdapter.notifyDataSetChanged();
+                    profileButtonAdapter.notifyDataSetChanged();
                 } else if (position == 1) {
 
                     if (isChecked == false) {
@@ -322,11 +319,11 @@ public class ProfileActivity extends AppCompatActivity implements ProfileAdapter
                     list.add(new ProfileButton(R.drawable.addfriendfinish, "Đã gửi lời kết bạn"));
                     list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
                     list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
-                    mData.child("Friends_Req").child(current.getUid()).child(user.getId()).child("request_type").setValue("Sent");
-                    mData.child("Friends_Req").child(current.getUid()).child(user.getId()).child("id").setValue(user.getId());
-                    mData.child("Friends_Req").child(user.getId()).child(current.getUid()).child("request_type").setValue("Received");
-                    mData.child("Friends_Req").child(user.getId()).child(current.getUid()).child("id").setValue(current.getUid());
-                    profileAdapter.notifyDataSetChanged();
+                    RequestType requestTypeSent = new RequestType(user.getId(),"Sent");
+                    RequestType requestTypeReceived = new RequestType(current.getUid(),"Received");
+                    mData.child("Friends_Req").child(current.getUid()).child(user.getId()).setValue(requestTypeSent);
+                    mData.child("Friends_Req").child(user.getId()).child(current.getUid()).setValue(requestTypeReceived);
+                    profileButtonAdapter.notifyDataSetChanged();
                     isChecked = true;
                 }
 

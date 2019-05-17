@@ -1,4 +1,5 @@
 package com.example.Chat365.Fragment.DialogCustom;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.example.Chat365.R;
+
 public class StatusDialog extends AppCompatDialogFragment {
     private EditText editText;
     private statusListenner statusListenner;
@@ -17,13 +19,10 @@ public class StatusDialog extends AppCompatDialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        try
-        {
+        try {
             statusListenner = (statusListenner) getTargetFragment();
-        }
-        catch (ClassCastException e)
-        {
-           throw  new ClassCastException(context.toString()+"Phai Interface statusListener");
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + "Phai Interface statusListener");
         }
 
     }
@@ -32,7 +31,7 @@ public class StatusDialog extends AppCompatDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.layout_dialogstatus,null);
+        View view = layoutInflater.inflate(R.layout.layout_dialogstatus, null);
         builder.setView(view).setTitle("Nhập trạng thái (0/50)").setNegativeButton("HỦY", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -41,17 +40,17 @@ public class StatusDialog extends AppCompatDialogFragment {
         }).setPositiveButton("ĐỒNG Ý", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String EditContent=editText.getText().toString();
-                statusListenner.applytexts(EditContent);
+                String EditContent = editText.getText().toString();
+                statusListenner.applyTextStatus(EditContent);
 
             }
         });
-        editText =view.findViewById(R.id.edTT);
+        editText = view.findViewById(R.id.edTT);
         return builder.create();
     }
-    public interface statusListenner
-    {
-        void applytexts(String stt);
+
+    public interface statusListenner {
+        void applyTextStatus(String stt);
     }
 }
 

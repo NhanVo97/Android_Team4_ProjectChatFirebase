@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.location.Location;
 import android.location.LocationManager;
@@ -15,9 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.Chat365.R;
 import com.google.android.gms.maps.model.LatLng;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DecimalFormat;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -25,17 +32,35 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MapUtils {
 
-    public static Bitmap createCustomMarker(Context context, @DrawableRes int resource, String _name) {
+    public static Bitmap getBitmapFromURL(String src) {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            // Log exception
+            return null;
+        }
+    }
+    public static Bitmap createCustomMarker(Context context, String linkUrl, String _name) {
 
         View marker = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.itemusermap, null);
 
         CircleImageView markerImage =  marker.findViewById(R.id.user_dp);
-        markerImage.setImageResource(resource);
+        if(!linkUrl.isEmpty()){
+            Picasso.get().load(linkUrl).into(markerImage);
+        } else {
+            markerImage.setImageResource(R.drawable.noavt);
+        }
         TextView txt_name = marker.findViewById(R.id.name);
         txt_name.setText(_name);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        //((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         marker.setLayoutParams(new ViewGroup.LayoutParams(52, ViewGroup.LayoutParams.WRAP_CONTENT));
         marker.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
         marker.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);

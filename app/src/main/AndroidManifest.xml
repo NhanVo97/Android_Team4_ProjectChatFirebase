@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-feature
         android:name="android.hardware.camera.any"
         android:required="true" />
@@ -38,8 +39,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activity.User.RoomFriendsActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+
+        <service android:name=".Scheduler.Service.FirebaseNotification">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".Activity.Library.FriendPicker" />
+        <activity
+            android:name=".Activity.User.RoomFriendsActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".Activity.Library.GaleryPicker" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -116,13 +126,6 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <service
-            android:name=".Scheduler.Woker.FirebaseWorker"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
         <service android:name=".Scheduler.Service.LocationService" />
     </application>
 

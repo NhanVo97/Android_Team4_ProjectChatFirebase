@@ -15,7 +15,7 @@ import android.widget.ImageView;
 
 import com.example.Chat365.Activity.HomeActivity;
 import com.example.Chat365.Activity.Post.PostActivity;
-import com.example.Chat365.Adapter.PostAdapter;
+import com.example.Chat365.Adapter.UserAdapter.PostAdapter.PostAdapter;
 import com.example.Chat365.Model.PostStatus;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;

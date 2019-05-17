@@ -14,8 +14,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.Chat365.Adapter.ChatRoomAdapter;
+import com.example.Chat365.Adapter.RoomAdapter.ChatRoomAdapter;
 import com.example.Chat365.Model.Message;
+import com.example.Chat365.Model.Room;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
 import com.example.Chat365.Utils.Management.Session;
@@ -31,16 +32,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.example.Chat365.Fragment.FragmentGroup.listRoom;
-
-public class RoomChatActivity extends AppCompatActivity implements ChatRoomAdapter.Oncallback{
+public class RoomChatActivity extends AppCompatActivity  {
     RecyclerView recyclerView;
     List<Message> listChat;
     DatabaseReference mData;
     ChatRoomAdapter chatRoomAdapter;
     Button btnSend;
-    EditText edNd;
+    EditText edMessage;
     FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,82 +51,77 @@ public class RoomChatActivity extends AppCompatActivity implements ChatRoomAdapt
         mData.keepSynced(true);
         recyclerView = findViewById(R.id.rcListchat);
         btnSend = findViewById(R.id.btnGui);
-        edNd=findViewById(R.id.edContentChat);
+        edMessage = findViewById(R.id.edContentChat);
         mAuth = FirebaseAuth.getInstance();
 
         // GetData
-            Intent intent = getIntent();
-            final int idRoom = intent.getIntExtra("IDRoom",0);
-            Session session = new Session(mData,mAuth.getCurrentUser(),this,false);
-            final User user = session.getUser();
-            LoadData(idRoom,user);
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.setTitle("Room "+listRoom.get(idRoom).getStr());
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
-            btnSend.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String ND = edNd.getText().toString();
-                    if(ND.equals(""))
-                    {
-                        Toast.makeText(getApplicationContext(),"Nội dung chat không được bỏ trống!",Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        AddData(ND,user,idRoom);
-                    }
+        Intent intent = getIntent();
+        Bundle bundle = intent.getBundleExtra("RoomBundle");
+        Room room = (Room) bundle.getSerializable("Room");
+        final int idRoom = bundle.getInt("IDRoom", 0);
+        Session session = new Session(mData, mAuth.getCurrentUser(), this, false);
+        final User user = session.getUser();
+        LoadData(idRoom);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("Room " + room.getStr());
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = edMessage.getText().toString();
+                if (message.equals("")) {
+                    Toast.makeText(getApplicationContext(), "Nội dung chat không được bỏ trống!", Toast.LENGTH_SHORT).show();
+                } else {
+                    sendMessage(message, user, idRoom);
                 }
-            });
+            }
+        });
 
-             recyclerView.setHasFixedSize(true);
-            //recyclerView.setLayoutManager(new GridLayoutManager(this,3)); //so cot 3
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            chatRoomAdapter = new ChatRoomAdapter(this,listChat);
-            recyclerView.setAdapter(chatRoomAdapter);
-
-
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        chatRoomAdapter = new ChatRoomAdapter( listChat);
+        recyclerView.setAdapter(chatRoomAdapter);
     }
 
-    private void AddData(String ND, User user, int idRoom) {
+    private void sendMessage(String ND, User user, int idRoom) {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         String Time = sdf.format(cal.getTime());
         String keys = mData.child(String.valueOf(idRoom)).push().getKey();
-        Message message = new Message(user,ND,Time,keys,"false");
+        Message message = new Message(user, ND, Time, keys, "false");
         mData.child(String.valueOf(idRoom)).child(keys).setValue(message);
-        edNd.setText("");
+        edMessage.setText("");
     }
-    private void LoadData(int room, User user) {
-        if(listChat.size()>0)
-        {
+
+    private void LoadData(int room) {
+        if (listChat.size() > 0) {
             listChat.clear();
         }
         mData.child(String.valueOf(room)).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    Message message = dataSnapshot.getValue(Message.class);
-                    listChat.add(message);
-                    chatRoomAdapter.notifyDataSetChanged();
+                Message message = dataSnapshot.getValue(Message.class);
+                listChat.add(message);
+                chatRoomAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                Message message = dataSnapshot.getValue(Message.class);
+                for (int i = 0;i<listChat.size();i++) {
+                    if (listChat.get(i).getKey().equals(message.getKey())) {
+                        listChat.set(i,message);
+                        chatRoomAdapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                   String k = dataSnapshot.getKey();
-                    for(Message m : listChat)
-                    {
-                        if(m.getKey().equals(k))
-                        {
-                            listChat.remove(m);
-                            chatRoomAdapter.notifyDataSetChanged();
-                            break;
-                        }
-                    }
-
+                Message message = dataSnapshot.getValue(Message.class);
+                listChat.remove(message);
+                chatRoomAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -143,16 +138,10 @@ public class RoomChatActivity extends AppCompatActivity implements ChatRoomAdapt
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id=item.getItemId();
-        if(id==android.R.id.home)
-        {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
             this.finish();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onItemClick(int position) {
-
     }
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.Library.FriendPicker">
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:weightSum="4"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+           android:layout_weight="3"
+            android:id="@+id/rcListFriend"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </android.support.v7.widget.RecyclerView>
+        <Button
+            android:id="@+id/btnSelect"
+            android:padding="10dp"
+            android:layout_weight="1"
+            android:background="#0097A7"
+            android:textColor="#FFF"
+            android:text="Chọn bạn bè"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <TextView
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="18dp"
+        android:text="Tất cả bạn bè đã được thêm vào nhóm"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

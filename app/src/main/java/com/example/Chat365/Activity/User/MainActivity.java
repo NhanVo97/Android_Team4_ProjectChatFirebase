@@ -9,17 +9,14 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.Chat365.Activity.HomeActivity;
-import com.example.Chat365.Adapter.MainViewPagerAdapter;
+import com.example.Chat365.Adapter.MainAdapter.MainViewPagerAdapter;
 import com.example.Chat365.Fragment.FragmentActivity;
 import com.example.Chat365.Fragment.FragmentGroup;
 import com.example.Chat365.Fragment.FragmentHome;
@@ -48,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     private  LocationUser locationUser;
     private DatabaseReference mData;
-    private boolean isPermission;
     Session session;
     protected void onStart() {
         super.onStart();
@@ -73,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewpager);
         mAuth = FirebaseAuth.getInstance();
         mData = FirebaseDatabase.getInstance().getReference();
+        currentUser = mAuth.getCurrentUser();
         session = new Session(mData,mAuth.getCurrentUser(),getApplicationContext(),false);
         // Fragment navigation
         init();
@@ -133,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
             case Constant
                     .REQUEST_PERMISSIONS_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    isPermission = true;
 
                 } else {
                     Toast.makeText(getApplicationContext(), "Xin hãy cho phép quyền thiết bị", Toast.LENGTH_LONG).show();
@@ -147,6 +143,14 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         unregisterReceiver(broadcastReceiver);
     }
+    private void updateTokenNotification(){
+        SharedPreferences sharedPreferences= this.getSharedPreferences("TokenNotification", Context.MODE_PRIVATE);
+        User user = session.getUser();
+        String token = sharedPreferences.getString("Token","");
+        user.setTokenNotification(token);
+        session.updateSession(user);
+        mData.child("Users").child(currentUser.getUid()).child("tokenNotification").setValue(token);
+    }
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -154,9 +158,8 @@ public class MainActivity extends AppCompatActivity {
             Double latitude = Double.valueOf(intent.getStringExtra("latutide"));
             Double longitude = Double.valueOf(intent.getStringExtra("longitude"));
             Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-            List<Address> addresses = null;
             try {
-                addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
                 String address = addresses.get(0).getAddressLine(0);
                 String stateName = addresses.get(0).getAdminArea();
                 String countryName = addresses.get(0).getCountryName();
@@ -164,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
                 User user = session.getUser();
                 user.setLocationUser(locationUser);
                 session.updateSession(user);
-                Log.e("AAA","RUN");
                 mData.child("Users").child(currentUser.getUid()).child("locationUser").setValue(locationUser);
             } catch (IOException e1) {
                 e1.printStackTrace();
@@ -174,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void init() {
+        updateTokenNotification();
         MainViewPagerAdapter mainViewPagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager());
         mainViewPagerAdapter.addFragment(new FragmentActivity(), "Hoạt động");
         mainViewPagerAdapter.addFragment(new FragmentHome(), "Tin Nhắn");

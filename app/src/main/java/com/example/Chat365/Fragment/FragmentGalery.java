@@ -10,15 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.Chat365.Adapter.HinhAdapter2;
+import com.example.Chat365.Adapter.AnotherAdapter.ViewPictureAdapter;
 import com.example.Chat365.R;
 
 import java.util.List;
 
-public class FragmentGalery extends Fragment implements HinhAdapter2.Oncallback {
+public class FragmentGalery extends Fragment implements ViewPictureAdapter.Oncallback {
     View v;
     RecyclerView rc;
-    HinhAdapter2 hinhAdapter;
+    ViewPictureAdapter hinhAdapter;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -26,7 +26,7 @@ public class FragmentGalery extends Fragment implements HinhAdapter2.Oncallback 
         rc = v.findViewById(R.id.rycGaleryAB);
         Bundle bundle = getArguments();
         List<String> list = bundle.getStringArrayList("ListHinh");
-        hinhAdapter = new HinhAdapter2(this,list,getFragmentManager());
+        hinhAdapter = new ViewPictureAdapter(this,list,getFragmentManager());
         rc.setHasFixedSize(true);
         rc.setLayoutManager(new GridLayoutManager(getActivity(),3));
         rc.setAdapter(hinhAdapter);

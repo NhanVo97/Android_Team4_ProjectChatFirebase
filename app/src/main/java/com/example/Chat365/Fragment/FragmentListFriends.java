@@ -13,8 +13,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 
 import com.example.Chat365.Activity.User.ProfileActivity;
-import com.example.Chat365.Adapter.FriendAutoAdapter;
-import com.example.Chat365.Adapter.FriendsListAdapter;
+import com.example.Chat365.Adapter.UserAdapter.SearchBoxAdapter.FriendAutoSearchAdapter;
+import com.example.Chat365.Adapter.UserAdapter.FriendAdapter.FriendsListAdapter;
 import com.example.Chat365.Model.Friends;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
@@ -37,7 +37,7 @@ public class FragmentListFriends extends Fragment {
     DatabaseReference mData;
     FirebaseAuth mAuth;
     AutoCompleteTextView autoND;
-    FriendAutoAdapter friendAutoAdapter;
+    FriendAutoSearchAdapter friendAutoSearchAdapter;
     private void getListFriends()
     {
         listFriends.clear();
@@ -52,8 +52,8 @@ public class FragmentListFriends extends Fragment {
                             User user = dataSnapshot.getValue(User.class);
                             listFriends.add(user);
                             friendsListAdapter.notifyDataSetChanged();
-                            friendAutoAdapter = new FriendAutoAdapter(getActivity(),listFriends);
-                            autoND.setAdapter(friendAutoAdapter);
+                            friendAutoSearchAdapter = new FriendAutoSearchAdapter(getActivity(),listFriends);
+                            autoND.setAdapter(friendAutoSearchAdapter);
                         }
 
                         @Override

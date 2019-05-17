@@ -1,19 +1,14 @@
 package com.example.Chat365.Fragment;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -21,7 +16,7 @@ import android.widget.Switch;
 
 import com.example.Chat365.Activity.HomeActivity;
 import com.example.Chat365.Activity.User.ProfileActivity;
-import com.example.Chat365.Adapter.UserNearAdapter;
+import com.example.Chat365.Adapter.UserAdapter.SearchBoxAdapter.ListFindNearUserAdapter;
 import com.example.Chat365.Model.LocationUser;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
@@ -37,11 +32,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentFindFriendNear extends Fragment implements UserNearAdapter.OnCallBack {
+public class FragmentFindFriendNear extends Fragment implements ListFindNearUserAdapter.OnCallBack {
     View v;
     RecyclerView rc;
     Switch swHideLocation;
-    UserNearAdapter userNearAdapter;
+    ListFindNearUserAdapter listFindNearUserAdapter;
     DatabaseReference mData;
     FirebaseUser mCurrent;
     List<User> listUser;
@@ -62,10 +57,11 @@ public class FragmentFindFriendNear extends Fragment implements UserNearAdapter.
         if(user == null){
             backToHome();
         }
-        userNearAdapter = new UserNearAdapter(listUser,this,user);
+        listFindNearUserAdapter = new ListFindNearUserAdapter(listUser,this,user);
         rc.setHasFixedSize(true);
         rc.setLayoutManager(new LinearLayoutManager(getContext()));
-        rc.setAdapter(userNearAdapter);
+        rc.addItemDecoration(new DividerItemDecoration(rc.getContext(), DividerItemDecoration.VERTICAL));
+        rc.setAdapter(listFindNearUserAdapter);
         // init Data
         initData();
 
@@ -107,8 +103,7 @@ public class FragmentFindFriendNear extends Fragment implements UserNearAdapter.
                     if(user != null && !user.getLocationUser().isHide() && !user.getId().equals(mCurrent.getUid())){
                         listUser.add(user);
                     }
-                  Log.e("AAA",listUser.size()+"");
-                  userNearAdapter.notifyDataSetChanged();
+                  listFindNearUserAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -125,7 +120,7 @@ public class FragmentFindFriendNear extends Fragment implements UserNearAdapter.
                     } else {
                         listUser.add(user);
                     }
-                    userNearAdapter.notifyDataSetChanged();
+                    listFindNearUserAdapter.notifyDataSetChanged();
                 }
                 }
 
@@ -133,7 +128,7 @@ public class FragmentFindFriendNear extends Fragment implements UserNearAdapter.
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 listUser.remove(user);
-                userNearAdapter.notifyDataSetChanged();
+                listFindNearUserAdapter.notifyDataSetChanged();
             }
 
             @Override

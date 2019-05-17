@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.example.Chat365.Activity.User.MainActivity;
 import com.example.Chat365.Activity.User.RoomFriendsActivity;
-import com.example.Chat365.Adapter.ListGroupAdapter;
+import com.example.Chat365.Adapter.UserAdapter.GroupChatAdapter.ListGroupAdapter;
 import com.example.Chat365.Model.GroupFriends;
 import com.example.Chat365.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -68,7 +68,7 @@ public class FragmentGroupPrivate extends Fragment implements ListGroupAdapter.O
         });
         // Init Data
         initData();
-        // check
+        // iCcheck
 
         return v;
     }

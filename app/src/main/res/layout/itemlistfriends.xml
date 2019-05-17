@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tvTTFR"
     android:padding="5dp"
+    android:background="@drawable/borderedittext"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -49,7 +50,7 @@
         android:id="@+id/tviewFriend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
+        android:layout_marginStart="80dp"
         android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvnicknameuser" />
