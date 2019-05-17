@@ -40,7 +40,7 @@
             <TextView
                 android:layout_below="@id/tvNameGroup"
                 android:layout_toRightOf="@id/profile_image"
-                android:text="Hoạt động 53 phút trước"
+                android:text="Chưa hoạt động"
                 android:layout_marginLeft="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

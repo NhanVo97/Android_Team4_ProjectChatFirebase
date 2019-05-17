@@ -40,7 +40,7 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
     FirebaseAuth mCurrent;
     List<PostStatus> listPost;
     PostAdapter postAdapter;
-    RecyclerView lv;
+    RecyclerView rcListPost;
     User user;
 
     @Override
@@ -49,7 +49,6 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
         startUser();
         getData();
     }
-
     private void startUser() {
         Session session = new Session(mData,mCurrent.getCurrentUser(),getActivity(),false);
         user = session.getUser();
@@ -60,7 +59,6 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
                 Picasso.get().load(user.getLinkAvatar()).into(imAvt);
             }
         }
-
     }
 
     public void getData() {
@@ -124,11 +122,11 @@ public class FragmentActivity extends Fragment implements PostAdapter.Oncallback
         mCurrent = FirebaseAuth.getInstance();
         mData = FirebaseDatabase.getInstance().getReference();
         listPost = new ArrayList<>();
-        lv = v.findViewById(R.id.postlist);
+        rcListPost = v.findViewById(R.id.postlist);
         postAdapter = new PostAdapter(this, listPost);
-        lv.setHasFixedSize(true);
-        lv.setLayoutManager(new LinearLayoutManager(getContext()));
-        lv.setAdapter(postAdapter);
+        rcListPost.setHasFixedSize(true);
+        rcListPost.setLayoutManager(new LinearLayoutManager(getContext()));
+        rcListPost.setAdapter(postAdapter);
         // Event
         editStt.setOnClickListener(new View.OnClickListener() {
             @Override

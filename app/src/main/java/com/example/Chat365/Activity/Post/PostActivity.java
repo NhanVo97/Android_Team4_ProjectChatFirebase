@@ -1,4 +1,5 @@
 package com.example.Chat365.Activity.Post;
+
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import com.example.Chat365.Activity.Galery.AllGaleryActivity;
 import com.example.Chat365.Activity.User.MainActivity;
 import com.example.Chat365.Activity.User.QuyenActivity;
 import com.example.Chat365.Adapter.AnotherAdapter.SpinnerAdapter;
+import com.example.Chat365.Adapter.LibraryAdapter.GaleryAdapter;
 import com.example.Chat365.Model.Gallery;
 import com.example.Chat365.Model.Other;
 import com.example.Chat365.Model.PostStatus;
@@ -54,12 +56,12 @@ import static com.example.Chat365.Utils.Constant.REQUEST_CODE_PERMISSION;
 
 public class PostActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
         View.OnClickListener, View.OnTouchListener {
-    private Spinner spPermission,spAlbum;
+    private Spinner spPermission, spAlbum;
     private SpinnerAdapter spAdapterPermission, spAdapterAlbum;
     private List<Other> permissionList, listAlbum;
-    private ImageView imAvatar,imGalery;
+    private ImageView imAvatar, imGalery;
     private GridView imPosthinh;
-    private TextView tvName,btnShare;
+    private TextView tvName, btnShare;
     private FirebaseAuth mAuth;
     private EditText edStatusPost;
     private String permission = "";
@@ -71,8 +73,10 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
     private StorageReference storageRef;
     private UploadTask uploadTask;
     private android.support.v7.widget.Toolbar tbPost;
-    Session session;
-    private void initData(){
+    private Session session;
+    private GaleryAdapter galeryAdapter;
+
+    private void initData() {
         // Action bar & set data
         tbPost = findViewById(R.id.tbQuyen);
         setSupportActionBar(tbPost);
@@ -96,26 +100,29 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
         mData = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         storage = FirebaseStorage.getInstance();
-        storageRef= storage.getReference();
+        storageRef = storage.getReference();
 
         // Init data spinner permission
-        permissionList.add(new Other(R.drawable.congkhai,"Công Khai"));
-        permissionList.add(new Other(R.drawable.withmyfriends,"Bạn Bè"));
-        permissionList.add(new Other(R.drawable.riengtu,"Chỉ Mình Tôi"));
-        spAdapterPermission = new SpinnerAdapter(this,R.layout.customspinner, permissionList);
+        permissionList.add(new Other(R.drawable.congkhai, "Công Khai"));
+        permissionList.add(new Other(R.drawable.withmyfriends, "Bạn Bè"));
+        permissionList.add(new Other(R.drawable.riengtu, "Chỉ Mình Tôi"));
+        spAdapterPermission = new SpinnerAdapter(this, R.layout.customspinner, permissionList);
         spPermission.setAdapter(spAdapterPermission);
         // init data ablum
-        listAlbum.add(new Other(R.drawable.add,"MyAlbum"));
-        spAdapterAlbum = new SpinnerAdapter(this,R.layout.customspinner, listAlbum);
+        listAlbum.add(new Other(R.drawable.add, "MyAlbum"));
+        spAdapterAlbum = new SpinnerAdapter(this, R.layout.customspinner, listAlbum);
         spAlbum.setAdapter(spAdapterAlbum);
         // session
         session = new Session(this);
         user = session.getUser();
         tvName.setText(user.getName());
-        if(!user.getLinkAvatar().isEmpty()){
+        if (!user.getLinkAvatar().isEmpty()) {
             Picasso.get().load(user.getLinkAvatar()).into(imAvatar);
         }
+
+
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,9 +143,8 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
                 int screenHeight = edStatusPost.getRootView().getHeight();
                 int keypadHeight = screenHeight - r.bottom;
                 if (keypadHeight > screenHeight * 0.15) {
-                   imPosthinh.setVisibility(View.INVISIBLE);
-                }
-                else {
+                    imPosthinh.setVisibility(View.INVISIBLE);
+                } else {
                     imPosthinh.setVisibility(View.VISIBLE);
                 }
             }
@@ -152,109 +158,73 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
-
-
-    private void postStatus(final User user, final String ND) {
-        Intent intent = getIntent();
-        //List<Gallery> linkGalery = intent.ge("LinkAnh");
-        final String key = mData.push().getKey();
-        PostStatus postStatus=null;
+    private void uploadProcessGalery(Uri linkGalery, String path, byte[] byteArray, final List<String> listLinkAnh
+            , final String key, final String ND){
+        StorageReference riversRef ;
         Calendar calendar = Calendar.getInstance();
-        final List<String> listLinkAnh = new ArrayList<>();
-        final StorageReference mountainsRef = storageRef.child("PostActivity/"+user.getId()+"/"+ album +"/"+calendar.getTimeInMillis()+".png");
-        if(linkAnh!=null)
-        {
-            if(linkAnh.get(0).getByteArray()==null)
-            {
-                for(int i=0;i<linkAnh.size();i++)
-                {
-                    Uri file = Uri.fromFile(new File(linkAnh.get(i).getLink()));
-                    final StorageReference riversRef = storageRef.child("PostActivity/"+user.getId()+"/"+ album +file.getLastPathSegment());
-                    uploadTask = riversRef.putFile(file);
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Xu ly K thanh cong
-                            Toast.makeText(getApplicationContext(),"Up hình lỗi, Xin thử lại!",Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            // Thanh Cong
-                            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                                @Override
-                                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                                    if (!task.isSuccessful()) {
-                                        throw task.getException();
-                                    }
+        album = !album.isEmpty() ? album : "MyAlbum";
+        if(byteArray == null){
+            riversRef = storageRef.child(path + user.getId()
+                    + "/" + linkGalery.getLastPathSegment());
+            uploadTask = riversRef.putFile(linkGalery);
+        } else {
+            riversRef = storageRef.child(path + user.getId() + "/" + calendar.getTimeInMillis() + ".png");
+            uploadTask = riversRef.putBytes(byteArray);
+        }
 
-                                    // Continue with the task to get the download URL
-                                    return riversRef.getDownloadUrl();
-                                }
-                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful()) {
-                                        Uri downloadUri = task.getResult();
-                                        listLinkAnh.add(downloadUri+"");
-                                        updateEvent(listLinkAnh,key,ND);
-                                        mData.child("Albums").child(user.getId()).child(album).child("listHinh").push().setValue(downloadUri+"");
-                                    } else {
-
-                                    }
-                                }
-                            });
-
-                        }
-                    });
-
-
-                }
+        final StorageReference finalRiversRef = riversRef;
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Xu ly K thanh cong
+                Toast.makeText(getApplicationContext(), "Up hình lỗi, Xin thử lại!", Toast.LENGTH_SHORT).show();
             }
-            else
-            {
-                Bundle bundle = intent.getBundleExtra("BundleLinkAnh");
-                byte[] array = bundle.getByteArray("Image");
-                final UploadTask uploadTask = mountainsRef.putBytes(array);
-                uploadTask.addOnFailureListener(new OnFailureListener() {
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // Thanh Cong
+                uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                     @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return finalRiversRef.getDownloadUrl();
                     }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                     @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                            @Override
-                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                                if (!task.isSuccessful()) {
-                                    throw task.getException();
-                                }
-
-                                // Continue with the task to get the download URL
-                                return mountainsRef.getDownloadUrl();
-                            }
-                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Uri> task) {
-                                if (task.isSuccessful()) {
-                                    Uri downloadUri = task.getResult();
-                                    listLinkAnh.add(downloadUri+"");
-                                    updateEvent(listLinkAnh,key,ND);
-                                    mData.child("Albums").child(user.getId()).child(album).child("listHinh").push().setValue(downloadUri+"");
-                                } else {
-
-                                }
-                            }
-                        });
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            listLinkAnh.add(downloadUri + "");
+                            updateEvent(listLinkAnh, key, ND);
+                            mData.child("Albums").child(user.getId()).child(album).child("listHinh").push().setValue(downloadUri + "");
+                        }
                     }
                 });
+
             }
-
-
-        }
-        else {
-            postStatus = new PostStatus(key, ND, 0, permission, mAuth.getCurrentUser().getUid(), null,false);
+        });
+    }
+    private void postStatus( final String ND) {
+        Intent intent = getIntent();
+        final String key = mData.push().getKey();
+        PostStatus postStatus = null;
+        final List<String> listLinkAnh = new ArrayList<>();
+        if (linkAnh != null) {
+            if (linkAnh.get(0).getByteArray() == null) {
+                for (int i = 0; i < linkAnh.size(); i++) {
+                    Uri file = Uri.fromFile(new File(linkAnh.get(i).getLink()));
+                    uploadProcessGalery(file,"PostActivity/",null,listLinkAnh,key,ND);
+                }
+            } else {
+                Bundle bundle = intent.getBundleExtra("BundleLinkAnh");
+                byte[] array = bundle.getByteArray("Image");
+                uploadProcessGalery(null,"PostActivity/",array,listLinkAnh,key,ND);
+            }
+        } else {
+            permission = !permission.isEmpty() ? permission : "0";
+            postStatus = new PostStatus(key, ND, 0, permission, mAuth.getCurrentUser().getUid(), null, false);
             mData.child("PostActivity").child(key).setValue(postStatus);
             mData.child("PostActivity").child(key).child("time").setValue(ServerValue.TIMESTAMP);
         }
@@ -262,7 +232,7 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void updateEvent(List<String> listLinkAnh, String key, String ND) {
-        PostStatus postStatus = new PostStatus(key,ND,0, permission,mAuth.getCurrentUser().getUid(),listLinkAnh,false);
+        PostStatus postStatus = new PostStatus(key, ND, 0, permission, mAuth.getCurrentUser().getUid(), listLinkAnh, false);
         mData.child("PostActivity").child(key).setValue(postStatus);
         mData.child("PostActivity").child(key).child("time").setValue(ServerValue.TIMESTAMP);
     }
@@ -271,7 +241,7 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         int idSelect = view.getId();
-        switch (idSelect){
+        switch (idSelect) {
             case R.id.spAccess:
                 permission = String.valueOf(position);
                 break;
@@ -290,43 +260,42 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        switch (id){
+        switch (id) {
             case R.id.btnShare:
                 String postText = edStatusPost.getText().toString();
-                if(postText.isEmpty()) {
-                    Toast.makeText(getApplicationContext(),"Nội dung bài viết không được bỏ trống!",Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    postStatus(user,postText);
-                    Toast.makeText(getApplicationContext(),"Thêm bài viết thành công!",Toast.LENGTH_SHORT).show();
-                    Intent callback = new Intent(getApplicationContext(),MainActivity.class);
+                if (postText.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Nội dung bài viết không được bỏ trống!", Toast.LENGTH_SHORT).show();
+                } else {
+                    postStatus(postText);
+                    Toast.makeText(getApplicationContext(), "Thêm bài viết thành công!", Toast.LENGTH_SHORT).show();
+                    Intent callback = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(callback);
                     finish();
                 }
                 break;
             case R.id.btnGalery:
                 Intent galeryPage = new Intent(getApplicationContext(), AllGaleryActivity.class);
-                startActivityForResult(galeryPage,REQUEST_CODE_GALERY);
-             break;
+                startActivityForResult(galeryPage, REQUEST_CODE_GALERY);
+                break;
         }
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         int id = v.getId();
-        switch (id){
+        switch (id) {
             case R.id.spAccess:
-                if(event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
                     Intent pagePermission = new Intent(getApplicationContext(), QuyenActivity.class);
                     permission = !permission.isEmpty() ? permission : "0";
-                    pagePermission.putExtra("Quyen",permission);
-                    startActivityForResult(pagePermission,REQUEST_CODE_PERMISSION);
+                    pagePermission.putExtra("Quyen", permission);
+                    startActivityForResult(pagePermission, REQUEST_CODE_PERMISSION);
                 }
                 return true;
             case R.id.spAlbum:
-                if(event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
                     Intent pageCreateAlbum = new Intent(getApplicationContext(), AlbumActivity.class);
-                    startActivityForResult(pageCreateAlbum,REQUEST_CODE_ALBUM);
+                    startActivityForResult(pageCreateAlbum, REQUEST_CODE_ALBUM);
                 }
                 return true;
         }
@@ -335,24 +304,29 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_CODE_ALBUM:
                 String nameAlbum = data.getStringExtra("nameAlbum");
-                Log.e("Album",nameAlbum);
-                if(!nameAlbum.equals("album")) {
-                    listAlbum.add(new Other(R.drawable.macdinh,nameAlbum));
-                    spAlbum.setSelection((listAlbum.size()-1));
+                Log.e("Album", nameAlbum);
+                if (!nameAlbum.equals("album")) {
+                    listAlbum.add(new Other(R.drawable.macdinh, nameAlbum));
+                    spAlbum.setSelection((listAlbum.size() - 1));
                 }
                 break;
             case REQUEST_CODE_GALERY:
-                 linkAnh = (List<Gallery>) data.getBundleExtra("BundleLinkAnh")
-                         .getSerializable("LinkAnh");
-                Log.e("LINKANHSIZE",linkAnh.size()+"");
+                linkAnh = (List<Gallery>) data.getBundleExtra("BundleLinkAnh")
+                        .getSerializable("LinkAnh");
+                if (linkAnh == null) {
+                    linkAnh = new ArrayList<>();
+                }
+                galeryAdapter = new GaleryAdapter(getApplicationContext(), R.layout.itemgalery, linkAnh, false);
+                imPosthinh.setAdapter(galeryAdapter);
+                Log.e("LINKANHSIZE", linkAnh.size() + "");
                 break;
             case REQUEST_CODE_PERMISSION:
-                int positionPermission = data.getIntExtra("positionPermission",0);
+                int positionPermission = data.getIntExtra("positionPermission", 0);
                 spPermission.setSelection(positionPermission);
-                Log.e("positionPermission",positionPermission+"");
+                Log.e("positionPermission", positionPermission + "");
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);

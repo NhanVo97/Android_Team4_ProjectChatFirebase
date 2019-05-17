@@ -31,10 +31,10 @@ public class QuyenActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Chọn quyền riêng tư");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        initData();
         // Get Data
         Intent intent = getIntent();
         quyen = intent.getStringExtra("Quyen");
+        initData();
         // Create List
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

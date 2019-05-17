@@ -110,7 +110,7 @@ public class FragmentOther extends Fragment {
         mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
         otherAdapter = new OtherAdapter(container.getContext(), otherList);
         lv.setAdapter(otherAdapter);
-        // event lv
+        // event rcListPost
         handleEvent();
         return v;
     }

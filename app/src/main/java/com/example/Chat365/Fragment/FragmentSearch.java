@@ -37,7 +37,7 @@ public class FragmentSearch extends Fragment {
     AutoCompleteTextView autoND;
     DatabaseReference mData;
     FriendAutoSearchAdapter friendAutoSearchAdapter;
-    ListView listView;
+    ListView lvHistory;
     FirebaseAuth mAuth;
     HistorySearchAdapter historySearchAdapter;
 
@@ -126,7 +126,7 @@ public class FragmentSearch extends Fragment {
         autoND = v.findViewById(R.id.autocomplete);
         mData = FirebaseDatabase.getInstance().getReference();
         tvLichSu = v.findViewById(R.id.tvLichSu);
-        listView = v.findViewById(R.id.listhistory);
+        lvHistory = v.findViewById(R.id.listhistory);
         mAuth = FirebaseAuth.getInstance();
         getUser();
         getHistory();
@@ -144,8 +144,8 @@ public class FragmentSearch extends Fragment {
         });
 
         historySearchAdapter = new HistorySearchAdapter(getActivity(), listHistory);
-        listView.setAdapter(historySearchAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        lvHistory.setAdapter(historySearchAdapter);
+        lvHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getActivity(), ProfileActivity.class);

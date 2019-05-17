@@ -21,11 +21,12 @@ public class GaleryAdapter extends BaseAdapter {
     Context context;
     int Layout;
     LayoutInflater layoutInflater;
-
-    public GaleryAdapter(Context context, int Layout, List<Gallery> list) {
+    boolean isSelectGaleryPage;
+    public GaleryAdapter(Context context, int Layout, List<Gallery> list,boolean isSelectGaleryPage) {
         this.galleryList = list;
         this.context = context;
         this.Layout = Layout;
+        this.isSelectGaleryPage = isSelectGaleryPage;
     }
     @Override
     public int getCount() {
@@ -55,12 +56,14 @@ public class GaleryAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        if (galleryList.get(position).isCheck()) {
-            viewHolder.textNum.setVisibility(View.VISIBLE);
-            viewHolder.textNum.setText(String.valueOf(galleryList.get(position).getNumber()));
-        } else {
-            viewHolder.textNum.setText("");
-            viewHolder.textNum.setVisibility(View.GONE);
+        if(isSelectGaleryPage){
+            if (galleryList.get(position).isCheck()) {
+                viewHolder.textNum.setVisibility(View.VISIBLE);
+                viewHolder.textNum.setText(String.valueOf(galleryList.get(position).getNumber()));
+            } else {
+                viewHolder.textNum.setText("");
+                viewHolder.textNum.setVisibility(View.GONE);
+            }
         }
         if (galleryList.get(position).getLink() != null) {
             Glide.with(convertView.getContext())

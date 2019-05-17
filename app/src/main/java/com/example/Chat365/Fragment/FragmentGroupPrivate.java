@@ -42,7 +42,7 @@ public class FragmentGroupPrivate extends Fragment implements ListGroupAdapter.O
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v=inflater.inflate(R.layout.groupchat,container,false);
+        v = inflater.inflate(R.layout.groupchat,container,false);
         btnCreate = v.findViewById(R.id.btnCreatGroup);
         Toolbar toolbar = v.findViewById(R.id.toolbargr);
         tvStatus = v.findViewById(R.id.tvStatus);

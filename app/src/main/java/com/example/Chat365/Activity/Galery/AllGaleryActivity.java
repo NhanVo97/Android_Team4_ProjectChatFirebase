@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -114,9 +115,10 @@ public class AllGaleryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // list
         listAnh = new ArrayList<>();
+        Log.e("AAA",listAnh.size()+"");
         linkAnh = new ArrayList<>();
         // init adapter
-        galeryAdapter = new GaleryAdapter(this,R.layout.itemgalery,listAnh);
+        galeryAdapter = new GaleryAdapter(this,R.layout.itemgalery,listAnh,true);
         gridView.setAdapter(galeryAdapter);
     }
     @Override
@@ -127,6 +129,7 @@ public class AllGaleryActivity extends AppCompatActivity {
         anhXa();
         // load picture from internal
         loadGalery();
+
         // Event
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -177,6 +180,7 @@ public class AllGaleryActivity extends AppCompatActivity {
                 Intent intent= new Intent(AllGaleryActivity.this, PostActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("LinkAnh", (ArrayList<Gallery>) linkAnh);
+                intent.putExtra("BundleLinkAnh",bundle);
                 setResult(Constant.REQUEST_CODE_ALBUM,intent);
                 finish();
             }
