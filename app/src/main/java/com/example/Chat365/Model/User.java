@@ -34,4 +34,5 @@ public class User implements Serializable{
     private String history;
     private LocationUser locationUser;
     private String tokenNotification;
+    private String linkBackground;
 }

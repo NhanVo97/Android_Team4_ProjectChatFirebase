@@ -48,13 +48,12 @@ public class ViewPictureAdapter extends RecyclerView.Adapter<ViewPictureAdapter.
             holder.imPosthinh.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view){
-
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     FragmentViewPicture fragmentViewPicture = new FragmentViewPicture();
                     Bundle bundle = new Bundle();
                     bundle.putString("LinkAnh",listhinh.get(position));
                     fragmentViewPicture.setArguments(bundle);
-                    fragmentTransaction.addToBackStack(null).replace(R.id.layoutpost2,fragmentViewPicture);
+                    fragmentTransaction.addToBackStack(null).replace(R.id.layoutAlbum,fragmentViewPicture);
                     fragmentTransaction.commit();
                 }
             });

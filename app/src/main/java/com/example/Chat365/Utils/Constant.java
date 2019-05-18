@@ -9,6 +9,8 @@ public class Constant {
     public static final int REQUEST_CODE_ALBUM = 1;
     public static final int REQUEST_CODE_PERMISSION = 2;
     public static final int REQUEST_CODE_GALERY = 3;
+    public static final int REQUEST_CODE_UP_AVATAR = 1;
+    public static final int REQUEST_CODE_UP_BACKGROUND = 2;
     // Key Menu
     public static final int GROUP = 0;
     public static final int ALBUM_GALERY = 1;

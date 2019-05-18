@@ -29,8 +29,7 @@ import com.example.Chat365.Model.ProfileButton;
 import com.example.Chat365.Model.RequestType;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.example.Chat365.Utils.Management.Session;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,22 +42,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ProfileActivity extends AppCompatActivity implements ProfileButtonAdapter.Oncallback {
+public class ProfileActivity extends AppCompatActivity implements ProfileButtonAdapter.Oncallback,PostAdapter.Oncallback {
     private RecyclerView recyclerView;
-    private List<ProfileButton> list;
+    private List<ProfileButton> listButtonProfile;
     private ImageView imageAvatar, imPost;
     private TextView tvName;
-    private User user = null;
-    private FirebaseUser current;
+    private User anotherUser,current;
     private ProfileButtonAdapter profileButtonAdapter;
-    private EditText edSTT;
+    private EditText edPost;
     private boolean isChecked, ktBB;
     private DatabaseReference mData, mFriends;
     private List<PostStatus> listPost = new ArrayList<>();
     private PostAdapter postAdapter;
-    private RecyclerView lv;
-    private ConstraintLayout cstranlayout;
-
+    private RecyclerView rcPost;
+    private ConstraintLayout layoutPost;
+    private Session session;
     public void getData(final User user) {
         listPost.clear();
         mData.keepSynced(true);
@@ -94,70 +92,79 @@ public class ProfileActivity extends AppCompatActivity implements ProfileButtonA
             }
         });
     }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private void anhXa(){
+        // Anh Xa Action bar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Trang Cá Nhân");
-        setContentView(R.layout.activity_profile);
-        // Anh Xa
+        // View other
         imageAvatar = findViewById(R.id.ibAvatar);
         tvName = findViewById(R.id.tvNameUser);
-        lv = findViewById(R.id.rclistpostcanhan);
+        rcPost = findViewById(R.id.rclistpostcanhan);
         imPost = findViewById(R.id.imAvatarPrv);
-        edSTT = findViewById(R.id.edTTPRV);
-        cstranlayout = findViewById(R.id.cstranlayout);
+        edPost = findViewById(R.id.edTTPRV);
+        layoutPost = findViewById(R.id.layoutPost);
+        // listButtonProfile
+        listPost = new ArrayList<>();
+        listButtonProfile = new ArrayList<>();
+        // Firebase
         mData = FirebaseDatabase.getInstance().getReference();
         mFriends = FirebaseDatabase.getInstance().getReference("Friends");
-        mFriends.keepSynced(true);
-        mData.keepSynced(true);
-        current = FirebaseAuth.getInstance().getCurrentUser();
-        postAdapter = new PostAdapter(new PostAdapter.Oncallback() {
-            @Override
-            public void onItemClick(int position) {
-
-            }
-        }, listPost);
-        lv.setHasFixedSize(true);
-        lv.setLayoutManager(new LinearLayoutManager(this));
-        lv.setAdapter(postAdapter);
-
-        if (current.getPhotoUrl() != null) {
-            Picasso.get().load(current.getPhotoUrl()).into(imPost);
-        }
-
-        // Bundle and event
-        Intent intent = getIntent();
-        Bundle b = intent.getBundleExtra("UserBundle");
-        user = (User) b.getSerializable("User");
-        if (user != null) {
-            getData(user);
-            tvName.setText(user.getName());
-            if (!user.getLinkAvatar().equals("")) {
-                Picasso.get().load(user.getLinkAvatar()).into(imageAvatar);
-            }
-            if (user.getId().equals(current.getUid())) {
-                edSTT.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(getApplicationContext(), PostActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("User", user);
-                        intent.putExtra("BundleUser", bundle);
-                        startActivity(intent);
-                    }
-                });
-            } else {
-                cstranlayout.setVisibility(View.GONE);
-            }
-        } else {
+        // Init Adapter
+        postAdapter = new PostAdapter(this, listPost);
+        rcPost.setHasFixedSize(true);
+        rcPost.setLayoutManager(new LinearLayoutManager(this));
+        rcPost.setAdapter(postAdapter);
+        // Session
+        session = new Session(this);
+        current = session.getUser();
+        if(current == null){
             backToHome();
         }
-
+    }
+    private void initData(){
+        // set Avatar
+        if(!current.getLinkAvatar().isEmpty()){
+            Picasso.get().load(current.getLinkAvatar()).into(imPost);
+        }
+        // Get from bundle
+        Intent intent = getIntent();
+        Bundle b = intent.getBundleExtra("UserBundle");
+        anotherUser = (User) b.getSerializable("User");
+        // set info when another anotherUser into my page
+        if(anotherUser !=null){
+            // set name
+            tvName.setText(anotherUser.getName());
+            // set avatar
+            if (!anotherUser.getLinkAvatar().isEmpty()) {
+                Picasso.get().load(anotherUser.getLinkAvatar()).into(imageAvatar);
+            }
+            // get post anotherUser
+            getData(anotherUser);
+        }
         // List ReclycleView Button
         intRecycleView();
+
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_profile);
+        // init data
+        anhXa();
+        initData();
+        // Event
+        if (current.getId().equals(anotherUser.getId())) {
+            edPost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getApplicationContext(), PostActivity.class);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            layoutPost.setVisibility(View.GONE);
+        }
     }
 
     private void backToHome() {
@@ -184,55 +191,57 @@ public class ProfileActivity extends AppCompatActivity implements ProfileButtonA
     }
 
     private void intRecycleView() {
-
-        list = new ArrayList<>();
-        if (current.getUid().equals(user.getId())) {
-            list.add(new ProfileButton(R.drawable.edituser, "Chỉnh sửa cá nhân"));
-            list.add(new ProfileButton(R.drawable.diary, "Nhật ký hoạt động"));
-            list.add(new ProfileButton(R.drawable.listfriends, "Danh sách bạn bè"));
+        //case self
+        if (current.getId().equals(anotherUser.getId())) {
+            listButtonProfile.add(new ProfileButton(R.drawable.edituser, "Chỉnh sửa cá nhân"));
+            listButtonProfile.add(new ProfileButton(R.drawable.diary, "Nhật ký hoạt động"));
+            listButtonProfile.add(new ProfileButton(R.drawable.listfriends, "Danh sách bạn bè"));
         } else {
-            mFriends.child(current.getUid()).child(user.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            // 1 : friend , 2 stranger, 3. already has request
+            mFriends.child(current.getId()).child(anotherUser.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
-                        list.add(new ProfileButton(R.drawable.friends, "Đã là bạn bè"));
-                        list.add(new ProfileButton(R.drawable.message2, "Gửi tin nhắn"));
-                        list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+                        // case 1 is friend
+                        listButtonProfile.add(new ProfileButton(R.drawable.friends, "Đã là bạn bè"));
+                        listButtonProfile.add(new ProfileButton(R.drawable.message2, "Gửi tin nhắn"));
+                        listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
                         profileButtonAdapter.notifyDataSetChanged();
                         checkBB(true);
                     } else {
+                        // case 3 already has request
                         checkBB(false);
-                        mData.child("Friends_Req").child(current.getUid()).child(user.getId()).addValueEventListener(new ValueEventListener() {
+                        mData.child("Friends_Req").child(current.getId()).child(anotherUser.getId()).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.exists()) {
                                     RequestType requestType = dataSnapshot.getValue(RequestType.class);
-                                    if (requestType.getRequest_type().equals("Sent")) {
+                                    if (requestType.getRequest_type().equals("Sent")) { // sender
                                         checkTT(true);
-                                        list.clear();
-                                        list.add(new ProfileButton(R.drawable.addfriendfinish, "Đã gửi lời kết bạn"));
-                                        list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
-                                        list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
-                                    } else if (requestType.getRequest_type().equals("Received")) {
+                                        listButtonProfile.clear();
+                                        listButtonProfile.add(new ProfileButton(R.drawable.addfriendfinish, "Đã gửi lời kết bạn"));
+                                        listButtonProfile.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
+                                        listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+                                    } else if (requestType.getRequest_type().equals("Received")) { // receiver
                                         checkTT(true);
-                                        list.clear();
-                                        list.add(new ProfileButton(R.drawable.addfriendfinish, "Chấp nhận lời mời"));
-                                        list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
-                                        list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
-                                    } else if (requestType.getRequest_type().equals("Follow")) {
+                                        listButtonProfile.clear();
+                                        listButtonProfile.add(new ProfileButton(R.drawable.addfriendfinish, "Chấp nhận lời mời"));
+                                        listButtonProfile.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
+                                        listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+                                    } else if (requestType.getRequest_type().equals("Follow")) { // Follow
                                         checkTT(true);
-                                        list.clear();
-                                        list.add(new ProfileButton(R.drawable.addfriendfinish, "Đang theo dõi"));
-                                        list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
-                                        list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+                                        listButtonProfile.clear();
+                                        listButtonProfile.add(new ProfileButton(R.drawable.addfriendfinish, "Đang theo dõi"));
+                                        listButtonProfile.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
+                                        listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
                                     }
-
                                 } else {
+                                    // case 2 stranger
                                     checkTT(false);
-                                    list.clear();
-                                    list.add(new ProfileButton(R.drawable.addfriends, "Thêm vào bạn bè"));
-                                    list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
-                                    list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+                                    listButtonProfile.clear();
+                                    listButtonProfile.add(new ProfileButton(R.drawable.addfriends, "Thêm vào bạn bè"));
+                                    listButtonProfile.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
+                                    listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
                                 }
                                 profileButtonAdapter.notifyDataSetChanged();
                             }
@@ -255,79 +264,77 @@ public class ProfileActivity extends AppCompatActivity implements ProfileButtonA
         }
 
         recyclerView = findViewById(R.id.recycleviewButton);
-        recyclerView.setHasFixedSize(true);// toc do nhanh hon
-        // rcMessagePrivate.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3)); //so cot 3
-        profileButtonAdapter = new ProfileButtonAdapter(this, list);
+        profileButtonAdapter = new ProfileButtonAdapter(this, listButtonProfile);
         recyclerView.setAdapter(profileButtonAdapter);
     }
 
     @Override
     public void onItemClick(int position) {
-        if (position == 0 && current.getUid().equals(user.getId())) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        // if itself watch page
+        if (position == 0 && current.getId().equals(anotherUser.getId())) {
+            // can edit Edit profile of user
             Intent intent = new Intent(getApplicationContext(), EditProfileActivity.class);
             Bundle bundle = new Bundle();
-            bundle.putSerializable("User", user);
+            bundle.putSerializable("User", anotherUser);
             intent.putExtra("UserBundle", bundle);
             startActivity(intent);
-        } else if (position == 1 && current.getUid().equals(user.getId())) {
-            Toast.makeText(getApplicationContext(), "1", Toast.LENGTH_SHORT).show();
-        } else if (position == 2 && current.getUid().equals(user.getId())) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        } else if (position == 1 && current.getId().equals(anotherUser.getId())) {
+           // handle fragment activity diary
+
+        } else if (position == 2 && current.getId().equals(anotherUser.getId())) {
+            // handle fragment friend
             FragmentListFriends fragmentListFriends = new FragmentListFriends();
             fragmentTransaction.replace(R.id.layout_profile, fragmentListFriends).addToBackStack("tag").commit();
         } else {
-            list.clear();
+            listButtonProfile.clear();
             profileButtonAdapter.notifyDataSetChanged();
-            if (ktBB) {
-
-            } else {
-
-                if (isChecked == true && position == 0) {
-                    list.clear();
-                    list.add(new ProfileButton(R.drawable.addfriends, "Thêm vào bạn bè"));
-                    list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
-                    list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+            if (!ktBB) { //if stranger guys
+                if (isChecked && position == 0) {
+                    listButtonProfile.clear();
+                    listButtonProfile.add(new ProfileButton(R.drawable.addfriends, "Thêm vào bạn bè"));
+                    listButtonProfile.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
+                    listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
                     isChecked = false;
-                    DatabaseReference mFriendSent = FirebaseDatabase.getInstance().getReference("Friends_Req").child(current.getUid()).child(user.getId());
+                    DatabaseReference mFriendSent = FirebaseDatabase.getInstance().getReference("Friends_Req").child(current.getId()).child(anotherUser.getId());
                     mFriendSent.removeValue();
-                    DatabaseReference mFriendReceived = FirebaseDatabase.getInstance().getReference("Friends_Req").child(user.getId()).child(current.getUid());
+                    DatabaseReference mFriendReceived = FirebaseDatabase.getInstance().getReference("Friends_Req").child(anotherUser.getId()).child(current.getId());
                     mFriendReceived.removeValue();
                     profileButtonAdapter.notifyDataSetChanged();
                 } else if (position == 1) {
 
-                    if (isChecked == false) {
-                        list.clear();
-                        list.add(new ProfileButton(R.drawable.addfriends, "Thêm vào bạn bè"));
-                        list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
-                        list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+                    if (!isChecked) {
+                        listButtonProfile.clear();
+                        listButtonProfile.add(new ProfileButton(R.drawable.addfriends, "Thêm vào bạn bè"));
+                        listButtonProfile.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
+                        listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
                     } else {
-                        list.clear();
-                        list.add(new ProfileButton(R.drawable.addfriendfinish, "Đã gửi lời kết bạn"));
-                        list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
-                        list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+                        listButtonProfile.clear();
+                        listButtonProfile.add(new ProfileButton(R.drawable.addfriendfinish, "Đã gửi lời kết bạn"));
+                        listButtonProfile.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
+                        listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
                     }
                     Intent intent = new Intent(getApplicationContext(), MessagerActivity.class);
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable("User", user);
+                    bundle.putSerializable("User", anotherUser);
                     intent.putExtra("PrivateChat", bundle);
                     startActivity(intent);
 
                 } else {
-                    list.clear();
-                    list.add(new ProfileButton(R.drawable.addfriendfinish, "Đã gửi lời kết bạn"));
-                    list.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
-                    list.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
-                    RequestType requestTypeSent = new RequestType(user.getId(),"Sent");
-                    RequestType requestTypeReceived = new RequestType(current.getUid(),"Received");
-                    mData.child("Friends_Req").child(current.getUid()).child(user.getId()).setValue(requestTypeSent);
-                    mData.child("Friends_Req").child(user.getId()).child(current.getUid()).setValue(requestTypeReceived);
+                    listButtonProfile.clear();
+                    listButtonProfile.add(new ProfileButton(R.drawable.addfriendfinish, "Đã gửi lời kết bạn"));
+                    listButtonProfile.add(new ProfileButton(R.drawable.message2, "Nhắn tin làm quen"));
+                    listButtonProfile.add(new ProfileButton(R.drawable.picture3, "Xem album ảnh"));
+                    RequestType requestTypeSent = new RequestType(anotherUser.getId(),"Sent");
+                    RequestType requestTypeReceived = new RequestType(current.getId(),"Received");
+                    mData.child("Friends_Req").child(current.getId()).child(anotherUser.getId()).setValue(requestTypeSent);
+                    mData.child("Friends_Req").child(anotherUser.getId()).child(current.getId()).setValue(requestTypeReceived);
                     profileButtonAdapter.notifyDataSetChanged();
                     isChecked = true;
                 }
-
-
             }
         }
 

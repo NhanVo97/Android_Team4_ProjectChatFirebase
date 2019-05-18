@@ -25,6 +25,7 @@ import com.example.Chat365.Activity.User.MainActivity;
 import com.example.Chat365.Activity.User.QuyenActivity;
 import com.example.Chat365.Adapter.AnotherAdapter.SpinnerAdapter;
 import com.example.Chat365.Adapter.LibraryAdapter.GaleryAdapter;
+import com.example.Chat365.Model.Album;
 import com.example.Chat365.Model.Gallery;
 import com.example.Chat365.Model.Other;
 import com.example.Chat365.Model.PostStatus;
@@ -198,7 +199,15 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
                             Uri downloadUri = task.getResult();
                             listLinkAnh.add(downloadUri + "");
                             updateEvent(listLinkAnh, key, ND);
-                            mData.child("Albums").child(user.getId()).child(album).child("listHinh").push().setValue(downloadUri + "");
+                            Album defaultAlbum = new Album();
+                            defaultAlbum.setCaption("Default");
+                            defaultAlbum.setListFriends(new ArrayList<String>());
+                            defaultAlbum.setListHinh(new ArrayList<String>());
+                            defaultAlbum.setName(album);
+                            permission = !permission.isEmpty() ? permission : "0";
+                            defaultAlbum.setQuyen(permissionList.get(Integer.parseInt(permission)).getStr());
+                            mData.child("Albums").child(user.getId()).child(key).setValue(defaultAlbum);
+                            mData.child("Albums").child(user.getId()).child(key).child("listHinh").push().setValue(downloadUri + "");
                         }
                     }
                 });
@@ -324,8 +333,8 @@ public class PostActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.e("LINKANHSIZE", linkAnh.size() + "");
                 break;
             case REQUEST_CODE_PERMISSION:
-                int positionPermission = data.getIntExtra("positionPermission", 0);
-                spPermission.setSelection(positionPermission);
+                String positionPermission = data.getStringExtra("positionPermission");
+                spPermission.setSelection(Integer.parseInt(positionPermission));
                 Log.e("positionPermission", positionPermission + "");
                 break;
         }

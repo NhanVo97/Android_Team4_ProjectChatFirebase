@@ -76,7 +76,7 @@ public class Session implements ValueEventListener {
             user = new User(mCurrent.getDisplayName(), "", mCurrent.getEmail(), "",
                     simpleDateFormat.format(date), "User", "", mCurrent.getPhotoUrl().toString(),"",
                     "", "", "", key,"Vn", "true", "Xin chào! Tôi đang sử dụng chat365",
-                    0L,"",new LocationUser("","","",0,0,false),"");
+                    0L,"",new LocationUser("","","",0,0,false),"","");
             // add new record firebase
             mData.child("Users").child(key).setValue(user);
             mData.child("Users").child(key).child("timestamp").setValue(ServerValue.TIMESTAMP);

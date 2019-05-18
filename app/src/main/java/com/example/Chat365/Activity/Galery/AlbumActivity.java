@@ -208,7 +208,7 @@ public class AlbumActivity extends AppCompatActivity implements View.OnClickList
                     String caption = edCaption.getText().toString();
                     String quyenAlbum = btnQuyen.getText().toString();
                     Album album = new Album(key,name,caption,quyenAlbum,null,null);
-                    mData.child("Albums").child(user.getId()).child(name).setValue(album);
+                    mData.child("Albums").child(user.getId()).child(key).setValue(album);
                     Intent intent = new Intent(getApplicationContext(), PostActivity.class);
                     intent.putExtra("nameAlbum",album.getName());
                     setResult(Constant.REQUEST_CODE_ALBUM,intent);

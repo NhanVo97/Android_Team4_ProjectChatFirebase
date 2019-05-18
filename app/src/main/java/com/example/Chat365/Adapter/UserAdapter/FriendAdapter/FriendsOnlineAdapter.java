@@ -80,13 +80,12 @@ public class FriendsOnlineAdapter extends BaseAdapter {
                         viewHolder.tviewFriend.setText(user.getStatus());
                     }
                     // set online active status
-                    if(user.getIsOnline().equals("True")){
+                    if(user.getIsOnline().equals("true")){
                         viewHolder.sttOnline.setBackgroundResource(R.drawable.online);
                     } else {
                         viewHolder.sttOnline.setBackgroundResource(R.drawable.offline);
                     }
                 }
-
 
             }
 
