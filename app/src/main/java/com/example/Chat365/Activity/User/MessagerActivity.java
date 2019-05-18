@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +25,8 @@ import android.widget.Toast;
 
 import com.example.Chat365.Adapter.UserAdapter.MessagePrivateAdapter;
 import com.example.Chat365.Adapter.UserAdapter.PostAdapter.PictureAdapter;
+import com.example.Chat365.Activity.VideoCall.WaitingCallActivity;
+import com.example.Chat365.Model.CallVideo;
 import com.example.Chat365.Model.Message;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
@@ -35,8 +38,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -49,7 +50,6 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -68,11 +68,11 @@ public class MessagerActivity extends AppCompatActivity implements PictureAdapte
     private EditText edChatBox;
     private LinearLayout layoutGaleryHide;
     private CircleImageView profile_image;
-    private TextView username, tvStatusActivity;
+    private TextView username, tvStatusActivity,btnCallVideo;
     private ImageButton imCamera, imPicture;
     private FirebaseStorage storage;
     private StorageReference storageRef;
-    private DatabaseReference mData;
+    private DatabaseReference mData,mCallVideo;
     private User userChat,currentUser;
     private List<String> listGalery;
     private List<Message> listMessage;
@@ -115,8 +115,10 @@ public class MessagerActivity extends AppCompatActivity implements PictureAdapte
         imPicture = findViewById(R.id.imPictureShow);
         layoutGaleryHide = findViewById(R.id.linerHinh);
         rclistPicture = findViewById(R.id.rcHinh);
+        btnCallVideo = findViewById(R.id.btnCallVideo);
         // Firebase Init
         mData = FirebaseDatabase.getInstance().getReference("PrivateChat");
+        mCallVideo = FirebaseDatabase.getInstance().getReference("VideoCall");
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
         // init list
@@ -147,6 +149,7 @@ public class MessagerActivity extends AppCompatActivity implements PictureAdapte
         imCamera.setOnClickListener(this);
         imPicture.setOnClickListener(this);
         btnSend.setOnClickListener(this);
+        btnCallVideo.setOnClickListener(this);
         toolbarMessage.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -343,6 +346,18 @@ public class MessagerActivity extends AppCompatActivity implements PictureAdapte
                     sendMessage(messageChat, userChat, currentUser);
                     edChatBox.setText("");
                 }
+                break;
+            case R.id.btnCallVideo:
+                String key = mData.child("VideoCall").push().getKey();
+                CallVideo callVideo = new CallVideo(key,currentUser.getId(),"Call away",userChat.getId(),"Incoming call");
+                mCallVideo.child(userChat.getId()).child(key).setValue(callVideo);
+                mCallVideo.child(currentUser.getId()).child(key).setValue(callVideo);
+                intent = new Intent(getApplicationContext(),WaitingCallActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("UserCall",userChat);
+                intent.putExtra("BundleUser",bundle);
+                startActivity(intent);
+                finish();
                 break;
         }
     }

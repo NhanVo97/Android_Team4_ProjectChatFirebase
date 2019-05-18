@@ -40,47 +40,14 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <LinearLayout
-                android:padding="10dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:id="@+id/layoutAudio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:src="@drawable/ic_call_audio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_marginTop="10dp"
-                    android:text="Âm thanh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <LinearLayout
-                android:padding="10dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:id="@+id/layoutVideo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:src="@drawable/ic_facetime_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_marginTop="10dp"
-                    android:text="Video"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+
             <LinearLayout
                 android:visibility="visible"
                 android:padding="10dp"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:id="@+id/layoutAdd"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <ImageView
                     android:src="@drawable/ic_add_friend"
@@ -88,7 +55,7 @@
                     android:layout_height="wrap_content" />
                 <TextView
                     android:layout_marginTop="10dp"
-                    android:text="Thêm"
+                    android:text="Thêm thành viên"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -107,24 +74,6 @@
                 <TextView
                     android:layout_marginTop="10dp"
                     android:text="Trang cá nhân"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <LinearLayout
-                android:padding="10dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:id="@+id/layoutNotification"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:src="@drawable/ic_notification"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:layout_marginTop="10dp"
-                    android:id="@+id/statusThongbao"
-                    android:text="Tắt thông báo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>

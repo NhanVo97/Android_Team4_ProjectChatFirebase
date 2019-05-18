@@ -81,6 +81,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activity.User.ProfileActivity" />
+        <activity android:name=".Activity.VideoCall.WaitingCallActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            />
         <activity android:name=".Activity.User.EditProfileActivity" />
         <activity
             android:name=".Activity.User.MessagerActivity"

@@ -43,8 +43,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class FragmentGroupInfo extends Fragment  implements View.OnClickListener, UserStatusAdapter.onCallBack {
     CircleImageView cvAvt;
-    TextView tvNameGroup,tvStatusActive,tvTotalMember,btnBietDanh,btnViTriThanhVien;
-    LinearLayout lnCallAudio,lnFaceTime,lnNotification,lnPersonal,lnAddMember;
+    TextView tvNameGroup,tvStatusActive,tvTotalMember,btnViTriThanhVien;
+    LinearLayout lnPersonal,lnAddMember;
     GroupFriends friends;
     DatabaseReference mData;
     int totalActive = 0;
@@ -64,9 +64,6 @@ public class FragmentGroupInfo extends Fragment  implements View.OnClickListener
         tvNameGroup = v.findViewById(R.id.tvName);
         tvStatusActive = v.findViewById(R.id.tvStatus);
         cvAvt = v.findViewById(R.id.cAvt);
-        lnCallAudio = v.findViewById(R.id.layoutAudio);
-        lnFaceTime = v.findViewById(R.id.layoutVideo);
-        lnNotification = v.findViewById(R.id.layoutNotification);
         lnPersonal = v.findViewById(R.id.layoutPersonal);
         lnAddMember = v.findViewById(R.id.layoutAdd);
         tvTotalMember = v.findViewById(R.id.tvTotalMember);

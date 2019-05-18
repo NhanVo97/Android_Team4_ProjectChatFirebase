@@ -187,15 +187,6 @@ public class ProfileActivity extends AppCompatActivity implements ProfileButtonA
         }
         return super.onOptionsItemSelected(item);
     }
-
-    public void checkTT(boolean c) {
-        isRequest = c;
-    }
-
-    public void checkBB(boolean c) {
-        isFriend = c;
-    }
-
     private void intRecycleView() {
         //case self
         if (current.getId().equals(anotherUser.getId())) {
@@ -213,10 +204,8 @@ public class ProfileActivity extends AppCompatActivity implements ProfileButtonA
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         // case 1 is friend
-                        //checkBB(true);
                         isFriend = true;
                     } else {// not friend
-//                        checkBB(false);
                         isFriend = false;
                     }
                 }
@@ -242,14 +231,12 @@ public class ProfileActivity extends AppCompatActivity implements ProfileButtonA
                             requestTypeStr = "Received";
                             listButtonProfile.set(0,new ProfileButton(R.drawable.addfriendfinish, "Chấp nhận lời mời"));
                         } else if (requestType.getRequest_type().equals("Follow")) { // Follow
-//                                        checkTT(true);
                             isRequest = true;
                             requestTypeStr = "Follow";
                             listButtonProfile.set(0,new ProfileButton(R.drawable.addfriendfinish, "Đang theo dõi"));
                         }
                     } else {
                         // case 2 stranger
-//                                    checkTT(false);
                         isRequest = false;
                         listButtonProfile.set(0,new ProfileButton(R.drawable.addfriends, "Thêm vào bạn bè"));
                     }
@@ -356,6 +343,5 @@ public class ProfileActivity extends AppCompatActivity implements ProfileButtonA
                 }
             }
         }
-
 
     }

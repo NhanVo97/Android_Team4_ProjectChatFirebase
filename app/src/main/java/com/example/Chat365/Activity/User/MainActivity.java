@@ -9,10 +9,12 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.Chat365.Activity.HomeActivity;
@@ -20,8 +22,10 @@ import com.example.Chat365.Adapter.MainAdapter.MainViewPagerAdapter;
 import com.example.Chat365.Fragment.FragmentActivity;
 import com.example.Chat365.Fragment.FragmentGroup;
 import com.example.Chat365.Fragment.FragmentHome;
+import com.example.Chat365.Activity.VideoCall.WaitingCallActivity;
 import com.example.Chat365.Fragment.FragmentNotification;
 import com.example.Chat365.Fragment.FragmentOther;
+import com.example.Chat365.Model.CallVideo;
 import com.example.Chat365.Model.LocationUser;
 import com.example.Chat365.Model.User;
 import com.example.Chat365.R;
@@ -31,6 +35,9 @@ import com.example.Chat365.Utils.Management.Session;
 import com.example.Chat365.Utils.PermissionUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -147,8 +154,11 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences= this.getSharedPreferences("TokenNotification", Context.MODE_PRIVATE);
         User user = session.getUser();
         String token = sharedPreferences.getString("Token","");
-        user.setTokenNotification(token);
-        session.updateSession(user);
+        if(!token.isEmpty()){
+            user.setTokenNotification(token);
+            session.updateSession(user);
+        }
+
         mData.child("Users").child(currentUser.getUid()).child("tokenNotification").setValue(token);
     }
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -174,7 +184,34 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+    private void ListenerEvent(){
+        mData.child("VideoCall").child(currentUser.getUid()).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Intent intent = new Intent(getApplicationContext(),WaitingCallActivity.class);
+                startActivity(intent);
+                finish();
+            }
 
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
     private void init() {
         updateTokenNotification();
         MainViewPagerAdapter mainViewPagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager());
@@ -198,5 +235,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Xin hãy bật GPS", Toast.LENGTH_SHORT).show();
         }
+        // Listener Calling
+        ListenerEvent();
     }
 }
